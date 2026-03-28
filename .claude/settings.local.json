@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)",
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next lint:*)",
+      "Bash(./node_modules/.bin/next lint:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx:*)"
+    ]
+  }
+}

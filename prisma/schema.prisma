@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Users
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String?
+  preferences String   @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  plaidItems   PlaidItem[]
+  accounts     Account[]
+  buckets      Bucket[]
+  goals        Goal[]
+  allocations  Allocation[]
+  streaks      Streak[]
+  transactions Transaction[]
+}
+
+// Plaid Items (linked institutions)
+model PlaidItem {
+  id                 String   @id @default(uuid())
+  userId             String
+  plaidItemId        String
+  accessToken        String // Should be encrypted in production
+  institutionName    String?
+  institutionLogoUrl String?
+  status             String   @default("active")
+  transactionsCursor String?  // Cursor for Plaid transaction sync
+  lastTransactionSync DateTime?
+  createdAt          DateTime @default(now())
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accounts Account[]
+
+  @@unique([userId, plaidItemId])
+}
+
+// Accounts
+model Account {
+  id               String   @id @default(uuid())
+  userId           String
+  plaidItemId      String?
+  plaidAccountId   String?
+  name             String
+  nickname         String?
+  mask             String?
+  type             String? // checking, savings, credit, etc.
+  subtype          String?
+  isMaster         Boolean  @default(false)
+  color            String?
+  currentBalance   Float?
+  availableBalance Float?
+  lastSyncedAt     DateTime?
+  createdAt        DateTime @default(now())
+
+  // Relations
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plaidItem       PlaidItem? @relation(fields: [plaidItemId], references: [id], onDelete: SetNull)
+  masterBuckets   Bucket[]   @relation("MasterAccount")
+  targetedBuckets Bucket[]   @relation("TargetAccount")
+
+  @@unique([userId, plaidAccountId])
+}
+
+// Buckets
+model Bucket {
+  id               String   @id @default(uuid())
+  userId           String
+  masterAccountId  String
+  name             String
+  emoji            String?
+  description      String?
+  allocationType   String // fixed_dollar, percent_of_income, percent_of_remainder, percent_of_discretionary
+  allocationValue  Float
+  priority         Int
+  targetAccountId  String?
+  color            String?
+  isArchived       Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  masterAccount Account  @relation("MasterAccount", fields: [masterAccountId], references: [id], onDelete: Cascade)
+  targetAccount Account? @relation("TargetAccount", fields: [targetAccountId], references: [id], onDelete: SetNull)
+  goals         Goal[]
+}
+
+// Goals (attached to buckets)
+model Goal {
+  id            String    @id @default(uuid())
+  bucketId      String
+  name          String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  deadline      DateTime?
+  photoUrl      String?
+  notes         String?
+  status        String    @default("active") // active, achieved, archived
+  achievedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  bucket Bucket @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+}
+
+// Allocation History
+model Allocation {
+  id                String    @id @default(uuid())
+  userId            String
+  incomeAmount      Float
+  allocationResults String
+  executed          Boolean   @default(false)
+  executedAt        DateTime?
+  createdAt         DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// User Streaks
+model Streak {
+  id               String    @id @default(uuid())
+  userId           String
+  streakType       String // allocation_followed, savings_goal
+  currentCount     Int       @default(0)
+  bestCount        Int       @default(0)
+  lastActivityDate DateTime?
+  createdAt        DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, streakType])
+}
+
+// Transaction Log - Audit trail for all financial events
+model Transaction {
+  id              String    @id @default(uuid())
+  userId          String
+  accountId       String?
+  bucketId        String?
+
+  // Transaction type: INCOME_DETECTED, INCOME_ALLOCATED, TRANSFER_INITIATED,
+  // TRANSFER_COMPLETED, TRANSFER_FAILED, BUCKET_ADJUSTMENT, BALANCE_SYNC
+  type            String
+
+  // Financial details
+  amount          Float
+  currency        String    @default("USD")
+
+  // Status: pending, completed, failed
+  status          String    @default("completed")
+
+  // References to external systems
+  plaidTransactionId String?
+  plaidTransferId    String?
+
+  // Source and destination for transfers
+  sourceAccountId      String?
+  destinationAccountId String?
+
+  // Descriptive information
+  description     String?
+  merchantName    String?
+  category        String?
+
+  // Metadata (JSON string for flexible data)
+  metadata        String    @default("{}")
+
+  // Error tracking
+  errorMessage    String?
+
+  // Timestamps
+  transactionDate DateTime?
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([userId, createdAt])
+  @@index([plaidTransactionId])
+}

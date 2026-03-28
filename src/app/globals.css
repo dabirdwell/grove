@@ -1,26 +1,248 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'DM Sans', var(--font-geist-sans), sans-serif;
+  --font-mono: 'DM Mono', var(--font-geist-mono), monospace;
+  --font-heading: 'Quicksand', var(--font-geist-sans), sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* The Grove - Color System */
+  --grove-trunk: #5D4037;
+  --grove-leaf: #2E7D32;
+  --grove-leaf-light: #66BB6A;
+  --grove-leaf-dark: #1B5E20;
+  --grove-fruit: #FFB300;
+  --grove-sky: #E8F5E9;
+  --grove-cream: #FFFDE7;
+  --grove-earth: #3E2723;
+  --grove-water: #4FC3F7;
+  
+  /* Bucket Category Colors - Nature Palette */
+  --color-bucket-essentials: #5D4037;
+  --color-bucket-savings: #2E7D32;
+  --color-bucket-lifestyle: #7CB342;
+  --color-bucket-goals: #FFB300;
+  --color-bucket-giving: #26A69A;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.75rem;
+  
+  /* The Grove - Light Theme */
+  --background: #FAFDF7;
+  --foreground: #2E3A2E;
+  --card: #FFFDE7;
+  --card-foreground: #2E3A2E;
+  --popover: #FFFDE7;
+  --popover-foreground: #2E3A2E;
+  --primary: #2E7D32;
+  --primary-foreground: #FAFDF7;
+  --secondary: #E8F5E9;
+  --secondary-foreground: #1B5E20;
+  --muted: #F1F8E9;
+  --muted-foreground: #5D7A5D;
+  --accent: #C8E6C9;
+  --accent-foreground: #1B5E20;
+  --destructive: #C62828;
+  --border: #C8E6C9;
+  --input: #E8F5E9;
+  --ring: #2E7D32;
+  
+  /* Chart colors - Natural palette */
+  --chart-1: #2E7D32;
+  --chart-2: #66BB6A;
+  --chart-3: #FFB300;
+  --chart-4: #5D4037;
+  --chart-5: #26A69A;
+  
+  --sidebar: #F1F8E9;
+  --sidebar-foreground: #2E3A2E;
+  --sidebar-primary: #2E7D32;
+  --sidebar-primary-foreground: #FAFDF7;
+  --sidebar-accent: #C8E6C9;
+  --sidebar-accent-foreground: #1B5E20;
+  --sidebar-border: #C8E6C9;
+  --sidebar-ring: #2E7D32;
+
+  /* Legacy Flow Colors - Mapped to Grove */
+  --flow-blue: #4FC3F7;
+  --flow-green: #2E7D32;
+  --flow-amber: #FFB300;
+  --flow-red: #C62828;
+  --flow-purple: #7E57C2;
+  --bucket-bills: #5D4037;
+  --bucket-savings: #2E7D32;
+  --bucket-discretionary: #7CB342;
+  --bucket-goals: #FFB300;
+}
+
+.dark {
+  /* The Grove - Moonlit Garden (Dark Theme) */
+  --background: #1A2E1A;
+  --foreground: #E8F5E9;
+  --card: #243524;
+  --card-foreground: #E8F5E9;
+  --popover: #243524;
+  --popover-foreground: #E8F5E9;
+  --primary: #66BB6A;
+  --primary-foreground: #1A2E1A;
+  --secondary: #2E4A2E;
+  --secondary-foreground: #A5D6A7;
+  --muted: #2E4A2E;
+  --muted-foreground: #81C784;
+  --accent: #3E5A3E;
+  --accent-foreground: #C8E6C9;
+  --destructive: #EF5350;
+  --border: #3E5A3E;
+  --input: #2E4A2E;
+  --ring: #66BB6A;
+  
+  --chart-1: #66BB6A;
+  --chart-2: #81C784;
+  --chart-3: #FFD54F;
+  --chart-4: #8D6E63;
+  --chart-5: #4DB6AC;
+  
+  --sidebar: #243524;
+  --sidebar-foreground: #E8F5E9;
+  --sidebar-primary: #66BB6A;
+  --sidebar-primary-foreground: #1A2E1A;
+  --sidebar-accent: #3E5A3E;
+  --sidebar-accent-foreground: #C8E6C9;
+  --sidebar-border: #3E5A3E;
+  --sidebar-ring: #66BB6A;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Quicksand', system-ui, sans-serif;
+    font-weight: 600;
+  }
+
+  /* Money display formatting */
+  .money-amount {
+    font-family: 'DM Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  
+  /* Organic card styling */
+  .card {
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .card:hover {
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.12);
+  }
+  
+  /* Button organic feel */
+  button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Subtle background texture */
+  .grove-texture {
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(102, 187, 106, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 179, 0, 0.02) 0%, transparent 40%);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Grove-specific utility classes */
+@layer utilities {
+  .text-grove-heading {
+    font-family: 'Quicksand', system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--grove-earth);
+  }
+  
+  .bg-grove-gradient {
+    background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 50%, #FFFDE7 100%);
+  }
+  
+  .border-grove {
+    border-color: var(--grove-leaf);
+  }
+  
+  .shadow-grove {
+    box-shadow: 0 4px 20px rgba(46, 125, 50, 0.15);
+  }
+  
+  /* Organic animations */
+  @keyframes gentle-sway {
+    0%, 100% { transform: rotate(-1deg); }
+    50% { transform: rotate(1deg); }
+  }
+  
+  @keyframes leaf-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-5px) rotate(2deg); }
+    75% { transform: translateY(3px) rotate(-1deg); }
+  }
+  
+  @keyframes grow-in {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  .animate-sway {
+    animation: gentle-sway 4s ease-in-out infinite;
+  }
+  
+  .animate-leaf {
+    animation: leaf-float 6s ease-in-out infinite;
+  }
+  
+  .animate-grow {
+    animation: grow-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
