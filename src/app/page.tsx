@@ -58,6 +58,7 @@ import {
   TreeDeciduous,
   Droplets,
   CalendarDays,
+  Target,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
@@ -161,6 +162,81 @@ const DEMO_BUCKETS: BucketConfig[] = [
     priority: 3,
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Goals Overview Widget (reads from localStorage, same key as goals page)
+// ---------------------------------------------------------------------------
+
+interface GoalSnapshot {
+  id: string;
+  name: string;
+  emoji: string;
+  targetAmount: number;
+  currentAmount: number;
+}
+
+function GoalsOverview() {
+  const [goals, setGoals] = useState<GoalSnapshot[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('grove-savings-goals');
+      if (stored) {
+        const parsed: GoalSnapshot[] = JSON.parse(stored);
+        setGoals(parsed.slice(0, 3));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  if (goals.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-semibold flex items-center gap-2">
+          <Target className="h-4 w-4 text-primary" aria-hidden="true" />
+          Goals Overview
+        </h2>
+        <Link href="/goals" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          View all
+        </Link>
+      </div>
+      <Card className="grove-card-glow">
+        <CardContent className="pt-5 pb-4 space-y-3">
+          {goals.map((goal) => {
+            const percent = goal.targetAmount > 0
+              ? Math.min(Math.round((goal.currentAmount / goal.targetAmount) * 100), 100)
+              : 0;
+            return (
+              <div key={goal.id}>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="flex items-center gap-1.5 font-medium truncate">
+                    <span>{goal.emoji}</span>
+                    {goal.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                    {percent}%
+                  </span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden bg-secondary">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: percent >= 100 ? '#FFD93D' : '#64FFDA' }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${percent}%` }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   // State
@@ -664,8 +740,15 @@ export default function Dashboard() {
             <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold">Grove</span>
             <Link
-              href="/budget"
+              href="/goals"
               className="ml-3 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
+            >
+              <Target className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Goals</span>
+            </Link>
+            <Link
+              href="/budget"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
             >
               <CalendarDays className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Budget</span>
@@ -965,6 +1048,9 @@ export default function Dashboard() {
             <BudgetSummaryCard summary={allocationResult.summary} />
           </div>
         )}
+
+        {/* Goals Overview */}
+        <GoalsOverview />
       </main>
 
       {/* Mobile Floating Action Button */}
