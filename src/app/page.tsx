@@ -60,6 +60,7 @@ import {
   CalendarDays,
   Target,
   ReceiptText,
+  BarChart3,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
@@ -905,6 +906,13 @@ export default function Dashboard() {
             >
               <ReceiptText className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Bills</span>
+            </Link>
+            <Link
+              href="/insights"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
+            >
+              <BarChart3 className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Insights</span>
             </Link>
           </div>
           <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
