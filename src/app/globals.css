@@ -67,90 +67,90 @@
 
 :root {
   --radius: 0.75rem;
-  
-  /* The Grove - Light Theme */
-  --background: #FAFDF7;
-  --foreground: #2E3A2E;
-  --card: #FFFDE7;
-  --card-foreground: #2E3A2E;
-  --popover: #FFFDE7;
-  --popover-foreground: #2E3A2E;
-  --primary: #2E7D32;
-  --primary-foreground: #FAFDF7;
-  --secondary: #E8F5E9;
-  --secondary-foreground: #1B5E20;
-  --muted: #F1F8E9;
-  --muted-foreground: #5D7A5D;
-  --accent: #C8E6C9;
-  --accent-foreground: #1B5E20;
-  --destructive: #C62828;
-  --border: #C8E6C9;
-  --input: #E8F5E9;
-  --ring: #2E7D32;
-  
-  /* Chart colors - Natural palette */
-  --chart-1: #2E7D32;
-  --chart-2: #66BB6A;
-  --chart-3: #FFB300;
-  --chart-4: #5D4037;
-  --chart-5: #26A69A;
-  
-  --sidebar: #F1F8E9;
-  --sidebar-foreground: #2E3A2E;
-  --sidebar-primary: #2E7D32;
-  --sidebar-primary-foreground: #FAFDF7;
-  --sidebar-accent: #C8E6C9;
-  --sidebar-accent-foreground: #1B5E20;
-  --sidebar-border: #C8E6C9;
-  --sidebar-ring: #2E7D32;
 
-  /* Legacy Flow Colors - Mapped to Grove */
+  /* Midnight Lagoon - Default Theme */
+  --background: #0A1628;
+  --foreground: #E8F4F0;
+  --card: #0d1f35;
+  --card-foreground: #E8F4F0;
+  --popover: #0d1f35;
+  --popover-foreground: #E8F4F0;
+  --primary: #64FFDA;
+  --primary-foreground: #0A1628;
+  --secondary: #1a3a4a;
+  --secondary-foreground: #a8c5ba;
+  --muted: #122640;
+  --muted-foreground: #7a9e8e;
+  --accent: #1a3a4a;
+  --accent-foreground: #64FFDA;
+  --destructive: #FF6B6B;
+  --border: #1e3a52;
+  --input: #122640;
+  --ring: #64FFDA;
+
+  /* Chart colors - Bioluminescent palette */
+  --chart-1: #64FFDA;
+  --chart-2: #4FD1C5;
+  --chart-3: #FFD93D;
+  --chart-4: #FF6B6B;
+  --chart-5: #81E6D9;
+
+  --sidebar: #0d1f35;
+  --sidebar-foreground: #E8F4F0;
+  --sidebar-primary: #64FFDA;
+  --sidebar-primary-foreground: #0A1628;
+  --sidebar-accent: #1a3a4a;
+  --sidebar-accent-foreground: #64FFDA;
+  --sidebar-border: #1e3a52;
+  --sidebar-ring: #64FFDA;
+
+  /* Legacy Flow Colors - Mapped to Lagoon */
   --flow-blue: #4FC3F7;
-  --flow-green: #2E7D32;
-  --flow-amber: #FFB300;
-  --flow-red: #C62828;
+  --flow-green: #64FFDA;
+  --flow-amber: #FFD93D;
+  --flow-red: #FF6B6B;
   --flow-purple: #7E57C2;
-  --bucket-bills: #5D4037;
-  --bucket-savings: #2E7D32;
-  --bucket-discretionary: #7CB342;
-  --bucket-goals: #FFB300;
+  --bucket-bills: #FF6B6B;
+  --bucket-savings: #64FFDA;
+  --bucket-discretionary: #4FD1C5;
+  --bucket-goals: #FFD93D;
 }
 
 .dark {
-  /* The Grove - Moonlit Garden (Dark Theme) */
-  --background: #1A2E1A;
-  --foreground: #E8F5E9;
-  --card: #243524;
-  --card-foreground: #E8F5E9;
-  --popover: #243524;
-  --popover-foreground: #E8F5E9;
-  --primary: #66BB6A;
-  --primary-foreground: #1A2E1A;
-  --secondary: #2E4A2E;
-  --secondary-foreground: #A5D6A7;
-  --muted: #2E4A2E;
-  --muted-foreground: #81C784;
-  --accent: #3E5A3E;
-  --accent-foreground: #C8E6C9;
-  --destructive: #EF5350;
-  --border: #3E5A3E;
-  --input: #2E4A2E;
-  --ring: #66BB6A;
-  
-  --chart-1: #66BB6A;
-  --chart-2: #81C784;
-  --chart-3: #FFD54F;
-  --chart-4: #8D6E63;
-  --chart-5: #4DB6AC;
-  
-  --sidebar: #243524;
-  --sidebar-foreground: #E8F5E9;
-  --sidebar-primary: #66BB6A;
-  --sidebar-primary-foreground: #1A2E1A;
-  --sidebar-accent: #3E5A3E;
-  --sidebar-accent-foreground: #C8E6C9;
-  --sidebar-border: #3E5A3E;
-  --sidebar-ring: #66BB6A;
+  /* Midnight Lagoon - Dark variant (same as default) */
+  --background: #0A1628;
+  --foreground: #E8F4F0;
+  --card: #0d1f35;
+  --card-foreground: #E8F4F0;
+  --popover: #0d1f35;
+  --popover-foreground: #E8F4F0;
+  --primary: #64FFDA;
+  --primary-foreground: #0A1628;
+  --secondary: #1a3a4a;
+  --secondary-foreground: #a8c5ba;
+  --muted: #122640;
+  --muted-foreground: #7a9e8e;
+  --accent: #1a3a4a;
+  --accent-foreground: #64FFDA;
+  --destructive: #FF6B6B;
+  --border: #1e3a52;
+  --input: #122640;
+  --ring: #64FFDA;
+
+  --chart-1: #64FFDA;
+  --chart-2: #4FD1C5;
+  --chart-3: #FFD93D;
+  --chart-4: #FF6B6B;
+  --chart-5: #81E6D9;
+
+  --sidebar: #0d1f35;
+  --sidebar-foreground: #E8F4F0;
+  --sidebar-primary: #64FFDA;
+  --sidebar-primary-foreground: #0A1628;
+  --sidebar-accent: #1a3a4a;
+  --sidebar-accent-foreground: #64FFDA;
+  --sidebar-border: #1e3a52;
+  --sidebar-ring: #64FFDA;
 }
 
 @layer base {
@@ -160,8 +160,17 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
-  
+
+  /* Midnight Lagoon: immersive dark gradient background */
+  .dark body,
+  body {
+    background: linear-gradient(165deg, #0A1628 0%, #0d2137 40%, #134E5E 100%);
+    background-attachment: fixed;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Quicksand', system-ui, sans-serif;
     font-weight: 600;
@@ -173,27 +182,38 @@
     font-variant-numeric: tabular-nums;
     font-weight: 500;
   }
-  
-  /* Organic card styling */
+
+  /* Organic card styling with subtle lagoon glow */
   .card {
-    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+    box-shadow: 0 2px 8px rgba(100, 255, 218, 0.04);
     transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
-  
+
   .card:hover {
-    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.12);
+    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.08), 0 0 40px rgba(100, 255, 218, 0.03);
   }
-  
+
+  /* Glow card variant for key sections */
+  .grove-card-glow {
+    box-shadow: 0 2px 12px rgba(100, 255, 218, 0.06);
+    transition: box-shadow 0.4s ease, transform 0.3s ease;
+  }
+
+  .grove-card-glow:hover {
+    box-shadow: 0 4px 24px rgba(100, 255, 218, 0.12), 0 0 60px rgba(100, 255, 218, 0.04);
+    transform: translateY(-1px);
+  }
+
   /* Button organic feel */
   button {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   /* Subtle background texture */
   .grove-texture {
-    background-image: 
-      radial-gradient(circle at 20% 50%, rgba(102, 187, 106, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(255, 179, 0, 0.02) 0%, transparent 40%);
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(100, 255, 218, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 217, 61, 0.02) 0%, transparent 40%);
   }
 }
 

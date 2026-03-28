@@ -83,22 +83,27 @@ interface AllocationPanelProps {
   onAllocate: (amount: number) => Promise<AllocationResult>;
   isLoading?: boolean;
   lastResult?: AllocationResult | null;
+  masterBalance?: number;
 }
 
 export function AllocationPanel({
   onAllocate,
   isLoading = false,
   lastResult,
+  masterBalance,
 }: AllocationPanelProps) {
-  const [incomeAmount, setIncomeAmount] = useState('2800');
+  const [incomeAmount, setIncomeAmount] = useState('');
   const [error, setError] = useState('');
   const [showNumbers, setShowNumbers] = useState(false);
+  const [presetMode, setPresetMode] = useState<'paycheck' | 'custom'>('paycheck');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const amount = parseFloat(incomeAmount);
+    const amount = presetMode === 'paycheck' && masterBalance
+      ? masterBalance
+      : parseFloat(incomeAmount);
     if (isNaN(amount) || amount <= 0) {
       setError('Please enter a valid positive amount');
       return;
@@ -129,41 +134,84 @@ export function AllocationPanel({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="income">Income Amount</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  $
-                </span>
-                <Input
-                  id="income"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={incomeAmount}
-                  onChange={(e) => setIncomeAmount(e.target.value)}
-                  placeholder="2,800.00"
-                  className="pl-7 text-lg"
-                  disabled={isLoading}
-                />
-              </div>
+            {/* Preset Amount Buttons */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setPresetMode('paycheck');
+                  if (masterBalance) setIncomeAmount(masterBalance.toString());
+                }}
+                className={`flex-1 text-sm py-2 px-3 rounded-lg border transition-all ${
+                  presetMode === 'paycheck'
+                    ? 'border-primary bg-primary/10 text-primary font-medium'
+                    : 'border-border text-muted-foreground hover:border-primary/50'
+                }`}
+              >
+                This Paycheck
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPresetMode('custom');
+                  setIncomeAmount('');
+                }}
+                className={`flex-1 text-sm py-2 px-3 rounded-lg border transition-all ${
+                  presetMode === 'custom'
+                    ? 'border-primary bg-primary/10 text-primary font-medium'
+                    : 'border-border text-muted-foreground hover:border-primary/50'
+                }`}
+              >
+                Custom Amount
+              </button>
             </div>
 
-            {/* Quick explore slider */}
-            <div className="space-y-3">
-              <Label className="text-sm text-muted-foreground">Quick explore</Label>
-              <Slider
-                min={500}
-                max={10000}
-                step={100}
-                value={[parseFloat(incomeAmount) || 2800]}
-                onValueChange={([val]) => setIncomeAmount(val.toString())}
-                disabled={isLoading}
-              />
-              <p className="text-xs text-muted-foreground text-center">
-                Drag to see how different amounts flow
-              </p>
-            </div>
+            {presetMode === 'paycheck' && masterBalance ? (
+              <div className="text-center py-3 rounded-lg bg-primary/5 border border-primary/20">
+                <p className="text-xs text-muted-foreground">Full checking balance</p>
+                <p className="text-2xl font-bold money-amount mt-1">
+                  ${masterBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="income">Income Amount</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <Input
+                      id="income"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={incomeAmount}
+                      onChange={(e) => setIncomeAmount(e.target.value)}
+                      placeholder="2,800.00"
+                      className="pl-7 text-lg"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Quick explore slider */}
+                <div className="space-y-3">
+                  <Label className="text-sm text-muted-foreground">Quick explore</Label>
+                  <Slider
+                    min={500}
+                    max={10000}
+                    step={100}
+                    value={[parseFloat(incomeAmount) || 2800]}
+                    onValueChange={([val]) => setIncomeAmount(val.toString())}
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-muted-foreground text-center">
+                    Drag to see how different amounts flow
+                  </p>
+                </div>
+              </>
+            )}
 
             {error && (
               <p className="text-sm text-destructive">{error}</p>
@@ -171,7 +219,7 @@ export function AllocationPanel({
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading || !incomeAmount}
+              disabled={isLoading || (!incomeAmount && !(presetMode === 'paycheck' && masterBalance))}
             >
               {isLoading ? (
                 <>
@@ -181,7 +229,7 @@ export function AllocationPanel({
               ) : (
                 <>
                   <Droplets className="h-4 w-4 mr-2" />
-                  Let It Flow
+                  {presetMode === 'paycheck' && masterBalance ? 'Quick Allocate' : 'Let It Flow'}
                 </>
               )}
             </Button>

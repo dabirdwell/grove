@@ -71,65 +71,89 @@ const getGreeting = () => {
 const DEMO_ACCOUNTS: SafeAccount[] = [
   {
     accountId: 'demo-checking',
-    name: 'Primary Checking',
-    mask: '1234',
+    name: 'Everyday Checking',
+    mask: '4921',
     plaidType: 'depository',
     plaidSubtype: 'checking',
-    balance: 5420.50,
-    institutionName: 'Demo Bank',
+    balance: 3850.00,
+    institutionName: 'Chase',
     isMaster: true,
   },
   {
     accountId: 'demo-savings',
     name: 'High-Yield Savings',
-    mask: '5678',
+    mask: '7803',
     plaidType: 'depository',
     plaidSubtype: 'savings',
     balance: 12350.00,
-    institutionName: 'Demo Bank',
+    institutionName: 'Ally Bank',
     isMaster: false,
   },
 ];
 
 const DEMO_BUCKETS: BucketConfig[] = [
   {
-    bucketId: 'demo-savings-bucket',
-    name: 'Savings',
-    emoji: '💰',
-    allocationType: 'percent_of_income',
-    value: 0.20,
-    priority: 1,
-  },
-  {
     bucketId: 'demo-rent',
     name: 'Rent',
     emoji: '🏠',
     allocationType: 'fixed_dollar',
-    value: 1500,
+    value: 1200,
     priority: 1,
   },
   {
-    bucketId: 'demo-utilities',
-    name: 'Utilities',
-    emoji: '💡',
+    bucketId: 'demo-car',
+    name: 'Car Payment',
+    emoji: '🚗',
     allocationType: 'fixed_dollar',
-    value: 200,
+    value: 350,
     priority: 1,
+  },
+  {
+    bucketId: 'demo-pet',
+    name: 'Pet Fund',
+    emoji: '🐾',
+    allocationType: 'fixed_dollar',
+    value: 50,
+    priority: 1,
+  },
+  {
+    bucketId: 'demo-savings-bucket',
+    name: 'Savings',
+    emoji: '💰',
+    allocationType: 'percent_of_income',
+    value: 0.15,
+    priority: 2,
+  },
+  {
+    bucketId: 'demo-emergency',
+    name: 'Emergency Fund',
+    emoji: '🛡️',
+    allocationType: 'percent_of_income',
+    value: 0.10,
+    priority: 2,
   },
   {
     bucketId: 'demo-groceries',
     name: 'Groceries',
     emoji: '🛒',
     allocationType: 'percent_of_discretionary',
-    value: 0.60,
+    value: 0.25,
     priority: 3,
   },
   {
     bucketId: 'demo-fun',
     name: 'Fun Money',
-    emoji: '🎮',
+    emoji: '🎉',
     allocationType: 'percent_of_discretionary',
-    value: 0.40,
+    value: 0.20,
+    priority: 3,
+  },
+  {
+    bucketId: 'demo-datenight',
+    name: 'Date Night',
+    emoji: '🍷',
+    allocationType: 'percent_of_discretionary',
+    value: 0.15,
     priority: 3,
   },
 ];
@@ -679,20 +703,21 @@ export default function Dashboard() {
               onAllocate={handleAllocate}
               isLoading={isLoading}
               lastResult={allocationResult}
+              masterBalance={masterAccount?.balance}
             />
           </div>
 
           {/* Right Column - 3D Tree Visualization */}
           <div className="lg:col-span-2">
-            <Card className="overflow-hidden border-0 shadow-2xl">
-              <CardHeader className="bg-gradient-to-r from-[#0a1628] to-[#0d2137] text-white border-b border-white/10">
-                <CardTitle className="text-[#e8f4f0]">Your Money Tree</CardTitle>
-                <CardDescription className="text-[#a8c5ba]">
-                  Rotate to explore • Click branches to edit
+            <Card className="overflow-hidden border-0 shadow-2xl grove-card-glow">
+              <CardHeader className="bg-gradient-to-r from-[#0a1628] to-[#0d2137] text-white border-b border-white/10 py-3">
+                <CardTitle className="text-[#e8f4f0] text-base">Your Money Tree</CardTitle>
+                <CardDescription className="text-[#a8c5ba] text-xs">
+                  Rotate to explore · Click branches to edit
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0 overflow-hidden rounded-b-lg">
-                <div className="h-[450px]">
+                <div className="h-[350px] sm:h-[500px]">
                   <MoneyTree3D
                     branches={treeBranches}
                     totalIncome={getTotalIncome() || masterAccount?.balance || 0}
@@ -705,6 +730,43 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
+
+        {/* Monthly Summary */}
+        {allocationResult && allocationResult.summary && (
+          <div className="grid gap-4 sm:grid-cols-3 mt-6">
+            <Card className="grove-card-glow">
+              <CardContent className="pt-6 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Allocated This Month</p>
+                <p className="text-2xl font-bold money-amount mt-1">
+                  ${allocationResult.summary.totalAllocated?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || '0'}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="grove-card-glow">
+              <CardContent className="pt-6 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Savings Rate</p>
+                <p className="text-2xl font-bold mt-1" style={{ color: '#64ffda' }}>
+                  {Math.round((allocationResult.summary.savingsRate || 0) * 100)}%
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="grove-card-glow">
+              <CardContent className="pt-6 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Biggest Category</p>
+                <p className="text-2xl font-bold mt-1">
+                  {(() => {
+                    const result = allocationResult as AllocationResult & { bucketDetails?: Array<{ allocated: number; emoji?: string; name: string }> };
+                    const details = result.summary?.bucketDetails || result.bucketDetails || [];
+                    if (details.length === 0) return '—';
+                    const biggest = details.reduce((max: { allocated: number; emoji?: string; name: string }, b: { allocated: number; emoji?: string; name: string }) =>
+                      b.allocated > max.allocated ? b : max, details[0]);
+                    return `${biggest.emoji || ''} ${biggest.name}`;
+                  })()}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <Separator className="my-8" />
 
