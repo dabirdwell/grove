@@ -1,43 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grove
+
+A financial wellness app that visualizes money allocation as a living 3D tree. Grove turns budgeting into something that feels like tending a garden — not filing taxes.
+
+<!-- TODO: Add screenshot -->
+![Grove Screenshot](docs/screenshot-placeholder.png)
+
+## Features
+
+- **3D Money Tree** — Watch your finances grow as an interactive Three.js tree. Healthy allocations glow bright; areas that need attention dim.
+- **Waterfall Allocation** — Assign income to buckets using fixed amounts, percentages, or discretionary splits, processed in priority order.
+- **Sankey Flow Diagram** — See exactly where every dollar goes with an animated D3 Sankey visualization.
+- **Bank Linking** — Connect real accounts via Plaid for live balances and transaction sync.
+- **Demo Mode** — Explore everything with sample data, no bank account required.
+
+## Tech Stack
+
+Next.js 16 · React 19 · Three.js · D3.js · Prisma (SQLite) · Plaid · Tailwind CSS v4 · Framer Motion
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Setup
 
 ```bash
+# Clone the repo
+git clone <repo-url> && cd flow
+
+# Install dependencies
+npm install
+
+# Create your env file (app works in demo mode with defaults)
+cp .env.example .env
+
+# Set up the database
+npx prisma db push
+npm run db:seed
+
+# Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see Grove.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run lint` | Run ESLint |
+| `npm run db:seed` | Seed sample data |
+| `npm run db:reset` | Reset DB and reseed |
+| `npx prisma studio` | Open database GUI |
 
-## Learn More
+## Demo Mode
 
-To learn more about Next.js, take a look at the following resources:
+Grove runs fully offline when Plaid credentials are not set. Demo accounts (IDs prefixed with `demo-`) provide realistic sample data so you can explore every feature without connecting a bank.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The `/api/health` endpoint reports the current mode:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```json
+{ "status": "ok", "mode": "demo", "timestamp": "..." }
+```
 
-## Deploy on Vercel
+## Plaid Integration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To connect real bank accounts, add your Plaid credentials to `.env`:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+PLAID_CLIENT_ID="your-client-id"
+PLAID_SECRET="your-secret"
+PLAID_ENV="sandbox"   # or "development" / "production"
+```
 
+## Deploy
 
-## Related
-- [[Products and Services Canon]]
-- [[GARDEN_INTERACTION_SPEC]]
-- [[GROVE_3D_SPECIFICATION]]
-- [[Foundation Canon]]
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F<owner>%2F<repo>&env=DATABASE_URL,PLAID_CLIENT_ID,PLAID_SECRET,PLAID_ENV,NEXT_PUBLIC_APP_URL&envDescription=See%20.env.example%20for%20defaults&project-name=grove&framework=nextjs)
+
+> **Note:** SQLite works for demo/preview deploys. For production, switch `DATABASE_URL` to a hosted database (e.g. Turso, PlanetScale).
+
+## License
+
+Private — all rights reserved.
