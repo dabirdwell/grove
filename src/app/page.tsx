@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { AnimatedSankey, generateFlowData } from '@/components/flow';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 // Dynamic import for 3D tree (needs to avoid SSR)
 const MoneyTree3D = dynamic(
@@ -34,7 +35,7 @@ function TreeLoadingState() {
   );
 }
 import { BucketCard, BucketForm } from '@/components/buckets';
-import { AllocationPanel, AccountSelector } from '@/components/dashboard';
+import { AllocationPanel, AccountSelector, BudgetSummaryCard } from '@/components/dashboard';
 import { AnimatedButton } from '@/components/ui/animated-button';
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { celebrations } from '@/components/ui/confetti';
@@ -56,6 +57,7 @@ import {
   Building2,
   TreeDeciduous,
   Droplets,
+  CalendarDays,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
@@ -661,6 +663,13 @@ export default function Dashboard() {
           <div className="flex items-center gap-2">
             <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold">Grove</span>
+            <Link
+              href="/budget"
+              className="ml-3 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
+            >
+              <CalendarDays className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Budget</span>
+            </Link>
           </div>
           <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
             <Button
@@ -949,6 +958,13 @@ export default function Dashboard() {
             </AnimatedCard>
           )}
         </section>
+
+        {/* Budget Summary */}
+        {allocationResult && allocationResult.summary && (
+          <div className="mt-8">
+            <BudgetSummaryCard summary={allocationResult.summary} />
+          </div>
+        )}
       </main>
 
       {/* Mobile Floating Action Button */}
