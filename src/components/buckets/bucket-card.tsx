@@ -52,17 +52,18 @@ export function BucketCard({ bucket, onEdit, onDelete, onArchive }: BucketCardPr
     : 0;
 
   return (
-    <Card className="relative overflow-hidden group">
+    <Card className="relative overflow-hidden group" role="article" aria-label={`${bucket.emoji || ''} ${bucket.name} bucket`}>
       {bucket.color && (
         <div
           className="absolute top-0 left-0 w-1 h-full"
           style={{ backgroundColor: bucket.color }}
+          aria-hidden="true"
         />
       )}
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            {bucket.emoji && <span className="text-xl">{bucket.emoji}</span>}
+            {bucket.emoji && <span className="text-xl" aria-hidden="true">{bucket.emoji}</span>}
             {bucket.name}
           </CardTitle>
           <DropdownMenu>
@@ -70,9 +71,10 @@ export function BucketCard({ bucket, onEdit, onDelete, onArchive }: BucketCardPr
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="min-h-[44px] min-w-[44px] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                aria-label={`Actions for ${bucket.name}`}
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

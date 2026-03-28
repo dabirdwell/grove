@@ -78,9 +78,9 @@
   --primary: #64FFDA;
   --primary-foreground: #0A1628;
   --secondary: #1a3a4a;
-  --secondary-foreground: #a8c5ba;
+  --secondary-foreground: #c0ddd0;
   --muted: #122640;
-  --muted-foreground: #7a9e8e;
+  --muted-foreground: #94b8a8;
   --accent: #1a3a4a;
   --accent-foreground: #64FFDA;
   --destructive: #FF6B6B;
@@ -127,9 +127,9 @@
   --primary: #64FFDA;
   --primary-foreground: #0A1628;
   --secondary: #1a3a4a;
-  --secondary-foreground: #a8c5ba;
+  --secondary-foreground: #c0ddd0;
   --muted: #122640;
-  --muted-foreground: #7a9e8e;
+  --muted-foreground: #94b8a8;
   --accent: #1a3a4a;
   --accent-foreground: #64FFDA;
   --destructive: #FF6B6B;
@@ -151,6 +151,27 @@
   --sidebar-accent-foreground: #64FFDA;
   --sidebar-border: #1e3a52;
   --sidebar-ring: #64FFDA;
+}
+
+/* Skip to main content - visible only on focus */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 1rem 1.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 0.5rem 0;
+  text-decoration: none;
+}
+
+.skip-to-main:focus {
+  left: 0;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 @layer base {

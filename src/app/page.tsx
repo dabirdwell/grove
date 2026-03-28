@@ -55,7 +55,9 @@ import {
   VolumeX,
   Building2,
   TreeDeciduous,
+  Droplets,
 } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
 
 // Time-of-day greeting
@@ -177,6 +179,8 @@ export default function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true); // Start true for demo mode
   const [hasAllocatedBefore, setHasAllocatedBefore] = useState(false);
+  const [showMobileAllocate, setShowMobileAllocate] = useState(false);
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
 
   // Sound effects (disabled by default)
   const { play: playSound, enabled: soundEnabled, toggle: toggleSound } = useSoundEffects({ enabled: false });
@@ -194,6 +198,36 @@ export default function Dashboard() {
       });
     },
   });
+
+  // Pull-to-refresh handler
+  useEffect(() => {
+    let startY = 0;
+    let pulling = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        pulling = true;
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (pulling && e.changedTouches[0].clientY - startY > 80) {
+        setIsPullRefreshing(true);
+        // Simulate refresh — reload data
+        window.dispatchEvent(new CustomEvent('grove-refresh'));
+        setTimeout(() => setIsPullRefreshing(false), 1200);
+      }
+      pulling = false;
+    };
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
 
   // Get master account
   const masterAccount = accounts.find(a => a.accountId === masterAccountId);
@@ -622,43 +656,74 @@ export default function Dashboard() {
       )}
 
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" role="banner">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <TreeDeciduous className="h-6 w-6 text-primary" />
+            <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold">Grove</span>
           </div>
-          <div className="flex items-center gap-2">
+          <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowOnboarding(true)}
               className="hidden sm:flex"
+              aria-label="Connect bank account"
             >
-              <Building2 className="h-4 w-4 mr-2" />
+              <Building2 className="h-4 w-4 mr-2" aria-hidden="true" />
               Connect Bank
             </Button>
-            <Button variant="ghost" size="icon" onClick={toggleSound} title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}>
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSound}
+              aria-label={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
+              className="min-w-[44px] min-h-[44px]"
+            >
+              {soundEnabled ? <Volume2 className="h-5 w-5" aria-hidden="true" /> : <VolumeX className="h-5 w-5" aria-hidden="true" />}
             </Button>
-            <Button variant="ghost" size="icon">
-              <RefreshCw className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden sm:inline-flex min-w-[44px] min-h-[44px]"
+              aria-label="Refresh data"
+            >
+              <RefreshCw className="h-5 w-5" aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => setShowOnboarding(true)} title="Setup Wizard">
-              <Settings className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowOnboarding(true)}
+              aria-label="Settings and setup wizard"
+              className="min-w-[44px] min-h-[44px]"
+            >
+              <Settings className="h-5 w-5" aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon">
-              <HelpCircle className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden sm:inline-flex min-w-[44px] min-h-[44px]"
+              aria-label="Help and keyboard shortcuts"
+            >
+              <HelpCircle className="h-5 w-5" aria-hidden="true" />
             </Button>
-          </div>
+          </nav>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto py-6 px-4 max-w-7xl">
+      <main id="main-content" className="container mx-auto py-6 px-4 max-w-7xl" role="main">
+        {/* Pull-to-refresh indicator */}
+        {isPullRefreshing && (
+          <div className="flex justify-center py-3 -mt-2 mb-2" aria-live="polite">
+            <RefreshCw className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+            <span className="sr-only">Refreshing...</span>
+          </div>
+        )}
+
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {getGreeting().text}! {getGreeting().emoji}
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -668,19 +733,19 @@ export default function Dashboard() {
 
         {/* Master Account Info */}
         {masterAccount && (
-          <Card className="mb-6">
+          <Card className="mb-6" role="region" aria-label="Master account overview">
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Master Account</p>
-                  <p className="text-lg font-semibold">
+                  <p className="text-base sm:text-lg font-semibold">
                     {masterAccount.nickname || masterAccount.name}
                     {masterAccount.mask && ` (****${masterAccount.mask})`}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <p className="text-sm text-muted-foreground">Current Balance</p>
-                  <p className="text-2xl font-bold money-amount">
+                  <p className="text-xl sm:text-2xl font-bold money-amount">
                     ${masterAccount.balance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                   </p>
                 </div>
@@ -688,6 +753,8 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAccountSelector(true)}
+                  aria-label="Change master account"
+                  className="self-start sm:self-center min-h-[44px] min-w-[44px]"
                 >
                   Change
                 </Button>
@@ -697,8 +764,8 @@ export default function Dashboard() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left Column - Allocation Panel */}
-          <div className="lg:col-span-1">
+          {/* Left Column - Allocation Panel (hidden on mobile, shown in sheet) */}
+          <div className="hidden lg:block lg:col-span-1">
             <AllocationPanel
               onAllocate={handleAllocate}
               isLoading={isLoading}
@@ -707,17 +774,17 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Right Column - 3D Tree Visualization */}
+          {/* Right Column - 3D Tree Visualization (full width on mobile) */}
           <div className="lg:col-span-2">
-            <Card className="overflow-hidden border-0 shadow-2xl grove-card-glow">
+            <Card className="overflow-hidden border-0 shadow-2xl grove-card-glow" role="region" aria-label="Money tree visualization">
               <CardHeader className="bg-gradient-to-r from-[#0a1628] to-[#0d2137] text-white border-b border-white/10 py-3">
                 <CardTitle className="text-[#e8f4f0] text-base">Your Money Tree</CardTitle>
-                <CardDescription className="text-[#a8c5ba] text-xs">
-                  Rotate to explore · Click branches to edit
+                <CardDescription className="text-[#c0ddd0] text-xs">
+                  Rotate to explore · Tap branches to edit
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0 overflow-hidden rounded-b-lg">
-                <div className="h-[350px] sm:h-[500px]">
+                <div className="h-[350px] sm:h-[500px] min-h-[350px]">
                   <MoneyTree3D
                     branches={treeBranches}
                     totalIncome={getTotalIncome() || masterAccount?.balance || 0}
@@ -728,12 +795,46 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Mobile: Quick Allocate button below tree */}
+            <div className="mt-4 lg:hidden">
+              <Button
+                className="w-full min-h-[48px] text-base"
+                onClick={() => setShowMobileAllocate(true)}
+                aria-label="Open allocation panel"
+              >
+                <Droplets className="h-5 w-5 mr-2" aria-hidden="true" />
+                Water Your Tree
+              </Button>
+            </div>
           </div>
         </div>
 
+        {/* Mobile Allocation Sheet */}
+        <Sheet open={showMobileAllocate} onOpenChange={setShowMobileAllocate}>
+          <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+            <SheetHeader>
+              <SheetTitle>Water Your Tree</SheetTitle>
+              <SheetDescription>Allocate income across your branches</SheetDescription>
+            </SheetHeader>
+            <div className="px-4 pb-6">
+              <AllocationPanel
+                onAllocate={async (amount) => {
+                  const result = await handleAllocate(amount);
+                  setShowMobileAllocate(false);
+                  return result;
+                }}
+                isLoading={isLoading}
+                lastResult={allocationResult}
+                masterBalance={masterAccount?.balance}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+
         {/* Monthly Summary */}
         {allocationResult && allocationResult.summary && (
-          <div className="grid gap-4 sm:grid-cols-3 mt-6">
+          <div className="grid gap-4 sm:grid-cols-3 mt-6" role="region" aria-label="Monthly allocation summary">
             <Card className="grove-card-glow">
               <CardContent className="pt-6 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Allocated This Month</p>
@@ -771,16 +872,20 @@ export default function Dashboard() {
         <Separator className="my-8" />
 
         {/* Buckets Section */}
-        <div>
+        <section aria-label="Your budget branches">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold">Your Branches</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl sm:text-2xl font-bold">Your Branches</h2>
+              <p className="text-muted-foreground text-sm sm:text-base">
                 Each branch grows your money toward a purpose
               </p>
             </div>
-            <AnimatedButton onClick={() => { setShowBucketForm(true); playSound('click'); }}>
-              <Plus className="h-4 w-4 mr-2" />
+            <AnimatedButton
+              onClick={() => { setShowBucketForm(true); playSound('click'); }}
+              className="hidden sm:flex min-h-[44px]"
+              aria-label="Create a new budget branch"
+            >
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               Grow Branch
             </AnimatedButton>
           </div>
@@ -832,14 +937,18 @@ export default function Dashboard() {
                 <p className="text-muted-foreground mb-4 text-center max-w-sm">
                   Create your first bucket to tell your income where to go.
                 </p>
-                <AnimatedButton onClick={() => { setShowBucketForm(true); playSound('click'); }}>
-                  <Plus className="h-4 w-4 mr-2" />
+                <AnimatedButton
+                  onClick={() => { setShowBucketForm(true); playSound('click'); }}
+                  aria-label="Create your first budget bucket"
+                  className="min-h-[44px]"
+                >
+                  <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                   Create Your First Bucket
                 </AnimatedButton>
               </CardContent>
             </AnimatedCard>
           )}
-        </div>
+        </section>
       </main>
 
       {/* Mobile Floating Action Button */}
@@ -851,13 +960,14 @@ export default function Dashboard() {
       >
         <Button
           size="lg"
-          className="rounded-full w-14 h-14 shadow-lg"
+          className="rounded-full w-14 h-14 shadow-lg shadow-primary/25"
           onClick={() => {
             setShowBucketForm(true);
             playSound('click');
           }}
+          aria-label="Add new branch"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="h-6 w-6" aria-hidden="true" />
         </Button>
       </motion.div>
 
@@ -876,7 +986,12 @@ export default function Dashboard() {
 
       {/* Account Selector Dialog */}
       {showAccountSelector && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+        <div
+          className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center"
+          role="dialog"
+          aria-label="Select master account"
+          aria-modal="true"
+        >
           <div className="w-full max-w-md p-4">
             <AccountSelector
               accounts={accounts}
@@ -885,8 +1000,9 @@ export default function Dashboard() {
             />
             <Button
               variant="outline"
-              className="w-full mt-4"
+              className="w-full mt-4 min-h-[44px]"
               onClick={() => setShowAccountSelector(false)}
+              aria-label="Cancel account selection"
             >
               Cancel
             </Button>

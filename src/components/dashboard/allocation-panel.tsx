@@ -135,18 +135,19 @@ export function AllocationPanel({
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Preset Amount Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group" aria-label="Income source selection">
               <button
                 type="button"
                 onClick={() => {
                   setPresetMode('paycheck');
                   if (masterBalance) setIncomeAmount(masterBalance.toString());
                 }}
-                className={`flex-1 text-sm py-2 px-3 rounded-lg border transition-all ${
+                className={`flex-1 text-sm py-3 px-3 rounded-lg border transition-all min-h-[44px] ${
                   presetMode === 'paycheck'
                     ? 'border-primary bg-primary/10 text-primary font-medium'
                     : 'border-border text-muted-foreground hover:border-primary/50'
                 }`}
+                aria-pressed={presetMode === 'paycheck'}
               >
                 This Paycheck
               </button>
@@ -156,11 +157,12 @@ export function AllocationPanel({
                   setPresetMode('custom');
                   setIncomeAmount('');
                 }}
-                className={`flex-1 text-sm py-2 px-3 rounded-lg border transition-all ${
+                className={`flex-1 text-sm py-3 px-3 rounded-lg border transition-all min-h-[44px] ${
                   presetMode === 'custom'
                     ? 'border-primary bg-primary/10 text-primary font-medium'
                     : 'border-border text-muted-foreground hover:border-primary/50'
                 }`}
+                aria-pressed={presetMode === 'custom'}
               >
                 Custom Amount
               </button>
@@ -218,8 +220,9 @@ export function AllocationPanel({
             )}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full min-h-[48px] text-base"
               disabled={isLoading || (!incomeAmount && !(presetMode === 'paycheck' && masterBalance))}
+              aria-label={isLoading ? 'Allocating income' : 'Allocate income to branches'}
             >
               {isLoading ? (
                 <>
@@ -298,9 +301,11 @@ export function AllocationPanel({
             {/* Collapsible number grid */}
             <button
               onClick={() => setShowNumbers(!showNumbers)}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors pt-2 w-full justify-center"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors pt-2 w-full justify-center min-h-[44px]"
+              aria-expanded={showNumbers}
+              aria-label={showNumbers ? 'Hide detailed numbers' : 'Show detailed numbers'}
             >
-              {showNumbers ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {showNumbers ? <ChevronUp className="h-3 w-3" aria-hidden="true" /> : <ChevronDown className="h-3 w-3" aria-hidden="true" />}
               {showNumbers ? 'Hide numbers' : 'See the numbers'}
             </button>
 
