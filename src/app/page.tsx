@@ -59,6 +59,7 @@ import {
   Droplets,
   CalendarDays,
   Target,
+  ReceiptText,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
@@ -232,6 +233,151 @@ function GoalsOverview() {
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Upcoming Bills Widget (reads from localStorage, same key as bills page)
+// ---------------------------------------------------------------------------
+
+interface BillSnapshot {
+  id: string;
+  name: string;
+  emoji: string;
+  amount: number;
+  dueDay: number;
+  autoPay: boolean;
+  paidDates: string[];
+}
+
+function getNextPayday(): number {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun, 5=Fri
+  // Find next Friday
+  let daysToFri = (5 - dayOfWeek + 7) % 7;
+  if (daysToFri === 0) daysToFri = 7; // if today is Friday, next is in 7
+
+  // Bi-weekly: if this week's Friday is even week of year, next payday is this Friday
+  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const weekNum = Math.ceil(((today.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
+  const thisPayWeek = weekNum % 2 === 0;
+
+  if (thisPayWeek && daysToFri <= 7) return daysToFri;
+  if (!thisPayWeek) return daysToFri + 7;
+  return daysToFri;
+}
+
+function UpcomingBills() {
+  const [bills, setBills] = useState<BillSnapshot[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('grove-bills');
+      if (stored) {
+        setBills(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  if (bills.length === 0) return null;
+
+  const today = new Date();
+  const todayDay = today.getDate();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const paidKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
+  // Get upcoming unpaid bills sorted by days until due
+  const upcoming = bills
+    .filter((b) => !b.paidDates.includes(paidKey))
+    .map((b) => {
+      const day = Math.min(b.dueDay, daysInMonth);
+      const daysUntil = day - todayDay;
+      return { ...b, effectiveDay: day, daysUntil };
+    })
+    .filter((b) => b.daysUntil >= 0)
+    .sort((a, b) => a.daysUntil - b.daysUntil)
+    .slice(0, 3);
+
+  // Total upcoming this week
+  const weekTotal = bills
+    .filter((b) => !b.paidDates.includes(paidKey))
+    .filter((b) => {
+      const day = Math.min(b.dueDay, daysInMonth);
+      const diff = day - todayDay;
+      return diff >= 0 && diff <= 7;
+    })
+    .reduce((sum, b) => sum + b.amount, 0);
+
+  const nextPayday = getNextPayday();
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-semibold flex items-center gap-2">
+          <ReceiptText className="h-4 w-4 text-primary" aria-hidden="true" />
+          Upcoming Bills
+        </h2>
+        <Link href="/bills" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          View all
+        </Link>
+      </div>
+      <Card className="grove-card-glow">
+        <CardContent className="pt-5 pb-4 space-y-3">
+          {/* Payday + week total */}
+          <div className="flex items-center justify-between text-sm mb-1">
+            <span className="text-muted-foreground">
+              Next payday: <span style={{ color: '#64FFDA' }}>{nextPayday} day{nextPayday !== 1 ? 's' : ''}</span>
+            </span>
+            {weekTotal > 0 && (
+              <span className="text-muted-foreground">
+                This week: <span className="money-amount" style={{ color: '#FFD93D' }}>
+                  ${weekTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </span>
+            )}
+          </div>
+          {/* Next 3 bills */}
+          {upcoming.map((bill) => (
+            <div key={bill.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-base flex-shrink-0">{bill.emoji}</span>
+                <span className="text-sm font-medium truncate">{bill.name}</span>
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded-full flex-shrink-0"
+                  style={{
+                    backgroundColor: bill.daysUntil <= 3
+                      ? 'rgba(255, 217, 61, 0.12)'
+                      : 'rgba(100, 255, 218, 0.08)',
+                    color: bill.daysUntil <= 3 ? '#FFD93D' : '#c0ddd0',
+                  }}
+                >
+                  {bill.daysUntil === 0
+                    ? 'Today'
+                    : bill.daysUntil === 1
+                    ? 'Tomorrow'
+                    : `${bill.daysUntil} days`}
+                </span>
+              </div>
+              <span
+                className="money-amount text-sm font-semibold flex-shrink-0 ml-2"
+                style={{ color: bill.daysUntil <= 3 ? '#FFD93D' : '#64FFDA' }}
+              >
+                ${bill.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          ))}
+          {upcoming.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-2">
+              All bills paid this month
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -753,6 +899,13 @@ export default function Dashboard() {
               <CalendarDays className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Budget</span>
             </Link>
+            <Link
+              href="/bills"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
+            >
+              <ReceiptText className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Bills</span>
+            </Link>
           </div>
           <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
             <Button
@@ -1051,6 +1204,9 @@ export default function Dashboard() {
 
         {/* Goals Overview */}
         <GoalsOverview />
+
+        {/* Upcoming Bills */}
+        <UpcomingBills />
       </main>
 
       {/* Mobile Floating Action Button */}
