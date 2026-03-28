@@ -3,9 +3,8 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { ChevronLeft, ChevronRight, TreeDeciduous, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { AppHeader } from '@/components/navigation';
 import type { BucketConfig, SafeAccount } from '@/types';
 import { FinancialManager } from '@/lib/engine';
 import Decimal from 'decimal.js';
@@ -40,9 +39,9 @@ const DEMO_BUCKETS: BucketConfig[] = [
 ];
 
 function getProgressColor(percent: number): string {
-  if (percent > 100) return '#FF6B6B';
-  if (percent > 75) return '#FFD93D';
-  return '#64FFDA';
+  if (percent > 100) return 'var(--destructive)';
+  if (percent > 75) return 'var(--chart-3)';
+  return 'var(--primary)';
 }
 
 function formatCurrency(amount: number): string {
@@ -134,7 +133,7 @@ export default function BudgetPage() {
   // Pie chart data
   const pieSlices = useMemo(() => {
     if (bucketDetails.length === 0) return [];
-    const colors = ['#64FFDA', '#4FD1C5', '#FFD93D', '#FF6B6B', '#81E6D9', '#A78BFA', '#F9A8D4', '#6EE7B7'];
+    const colors = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', '#A78BFA', '#F9A8D4', '#6EE7B7'];
     let cumulative = 0;
     return bucketDetails.map((b, i) => {
       const pct = totalAllocated > 0 ? (b.allocated / totalAllocated) * 100 : 0;
@@ -154,7 +153,7 @@ export default function BudgetPage() {
 
   // Build conic-gradient for pie
   const conicGradient = useMemo(() => {
-    if (pieSlices.length === 0) return 'conic-gradient(#1e3a52 0% 100%)';
+    if (pieSlices.length === 0) return 'conic-gradient(var(--muted) 0% 100%)';
     const stops = pieSlices.map(
       (s) => `${s.color} ${s.startAngle}% ${s.endAngle}%`,
     );
@@ -164,24 +163,7 @@ export default function BudgetPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
-              <span className="text-xl font-bold">Grove</span>
-            </Link>
-            <Separator orientation="vertical" className="h-6 mx-2" />
-            <span className="text-sm text-muted-foreground font-medium">Budget</span>
-          </div>
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="min-h-[44px]">
-              <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
-              Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="container mx-auto py-6 px-4 max-w-5xl">
         {/* Month Selector */}
@@ -220,7 +202,7 @@ export default function BudgetPage() {
           <Card className="grove-card-glow">
             <CardContent className="pt-6 text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Allocated</p>
-              <p className="text-2xl font-bold money-amount mt-1" style={{ color: '#64FFDA' }}>
+              <p className="text-2xl font-bold money-amount mt-1" style={{ color: 'var(--primary)' }}>
                 {formatCurrency(totalAllocated)}
               </p>
             </CardContent>
@@ -228,7 +210,7 @@ export default function BudgetPage() {
           <Card className="grove-card-glow">
             <CardContent className="pt-6 text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Unallocated</p>
-              <p className="text-2xl font-bold money-amount mt-1" style={{ color: totalUnallocated > 0 ? '#FFD93D' : '#64FFDA' }}>
+              <p className="text-2xl font-bold money-amount mt-1" style={{ color: totalUnallocated > 0 ? 'var(--chart-3)' : 'var(--primary)' }}>
                 {formatCurrency(totalUnallocated)}
               </p>
             </CardContent>

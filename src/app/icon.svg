@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Grove tree favicon -->
+  <!-- Trunk -->
+  <rect x="14" y="20" width="4" height="8" rx="1" fill="#5D4037"/>
+  <!-- Canopy layers -->
+  <ellipse cx="16" cy="14" rx="10" ry="8" fill="#2E7D32"/>
+  <ellipse cx="16" cy="11" rx="8" ry="6" fill="#43A047"/>
+  <ellipse cx="16" cy="9" rx="5" ry="4" fill="#66BB6A"/>
+  <!-- Glow dot -->
+  <circle cx="16" cy="9" r="1.5" fill="#A5D6A7" opacity="0.8"/>
+</svg>

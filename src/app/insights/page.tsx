@@ -3,9 +3,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { TreeDeciduous, ArrowLeft, TrendingUp, Sparkles } from 'lucide-react';
-import Link from 'next/link';
+import { TrendingUp, Sparkles } from 'lucide-react';
+import { AppHeader } from '@/components/navigation';
 import type { BucketConfig, SafeAccount } from '@/types';
 import { FinancialManager } from '@/lib/engine';
 import Decimal from 'decimal.js';
@@ -66,10 +65,10 @@ function formatCurrency(amount: number): string {
 }
 
 function getHealthLabel(score: number): { label: string; color: string } {
-  if (score >= 81) return { label: 'Flourishing', color: '#64FFDA' };
-  if (score >= 61) return { label: 'Thriving', color: '#4FD1C5' };
-  if (score >= 41) return { label: 'Growing', color: '#FFD93D' };
-  return { label: 'Getting started', color: '#FF6B6B' };
+  if (score >= 81) return { label: 'Flourishing', color: 'var(--primary)' };
+  if (score >= 61) return { label: 'Thriving', color: 'var(--chart-2)' };
+  if (score >= 41) return { label: 'Growing', color: 'var(--chart-3)' };
+  return { label: 'Getting started', color: 'var(--destructive)' };
 }
 
 // ---------------------------------------------------------------------------
@@ -279,24 +278,7 @@ export default function InsightsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
-              <span className="text-xl font-bold">Grove</span>
-            </Link>
-            <Separator orientation="vertical" className="h-6 mx-2" />
-            <span className="text-sm text-muted-foreground font-medium">Insights</span>
-          </div>
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="min-h-[44px]">
-              <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
-              Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="container mx-auto py-6 px-4 max-w-5xl space-y-8">
         {/* Your Money Story */}
@@ -309,7 +291,7 @@ export default function InsightsPage() {
                 <div className="space-y-2 text-sm leading-relaxed">
                   <p>
                     This month, you allocated{' '}
-                    <span className="font-bold money-amount" style={{ color: '#64FFDA' }}>
+                    <span className="font-bold money-amount" style={{ color: 'var(--primary)' }}>
                       {formatCurrency(totalAllocated)}
                     </span>{' '}
                     of your{' '}
@@ -330,14 +312,14 @@ export default function InsightsPage() {
                   )}
                   <p>
                     You saved{' '}
-                    <span className="font-bold" style={{ color: '#64FFDA' }}>
+                    <span className="font-bold" style={{ color: 'var(--primary)' }}>
                       {Math.round(savingsRate * 100)}%
                     </span>{' '}
                     of your income.
                     {emergencyGrowth > 0 && (
                       <>
                         {' '}Your emergency fund grew by{' '}
-                        <span className="font-bold money-amount" style={{ color: '#64FFDA' }}>
+                        <span className="font-bold money-amount" style={{ color: 'var(--primary)' }}>
                           {formatCurrency(emergencyGrowth)}
                         </span>.
                       </>
@@ -463,7 +445,7 @@ export default function InsightsPage() {
                       style={{
                         width: `${needsWants.needsPct}%`,
                         backgroundColor: '#4FD1C5',
-                        color: '#0A1628',
+                        color: 'var(--primary-foreground)',
                         minWidth: needsWants.needsPct > 8 ? undefined : '24px',
                       }}
                     >
@@ -476,7 +458,7 @@ export default function InsightsPage() {
                       style={{
                         width: `${needsWants.wantsPct}%`,
                         backgroundColor: '#A78BFA',
-                        color: '#0A1628',
+                        color: 'var(--primary-foreground)',
                         minWidth: needsWants.wantsPct > 8 ? undefined : '24px',
                       }}
                     >
@@ -488,8 +470,8 @@ export default function InsightsPage() {
                       className="h-full flex items-center justify-center text-[10px] font-bold"
                       style={{
                         width: `${needsWants.savingsPct}%`,
-                        backgroundColor: '#64FFDA',
-                        color: '#0A1628',
+                        backgroundColor: 'var(--primary)',
+                        color: 'var(--primary-foreground)',
                         minWidth: needsWants.savingsPct > 8 ? undefined : '24px',
                       }}
                     >
@@ -503,9 +485,9 @@ export default function InsightsPage() {
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">50 / 30 / 20 Guideline</p>
                 <div className="h-6 w-full rounded-full overflow-hidden flex">
-                  <div className="h-full flex items-center justify-center text-[10px] font-bold" style={{ width: '50%', backgroundColor: '#4FD1C5', color: '#0A1628', opacity: 0.4 }}>50%</div>
-                  <div className="h-full flex items-center justify-center text-[10px] font-bold" style={{ width: '30%', backgroundColor: '#A78BFA', color: '#0A1628', opacity: 0.4 }}>30%</div>
-                  <div className="h-full flex items-center justify-center text-[10px] font-bold" style={{ width: '20%', backgroundColor: '#64FFDA', color: '#0A1628', opacity: 0.4 }}>20%</div>
+                  <div className="h-full flex items-center justify-center text-[10px] font-bold" style={{ width: '50%', backgroundColor: '#4FD1C5', color: 'var(--primary-foreground)', opacity: 0.4 }}>50%</div>
+                  <div className="h-full flex items-center justify-center text-[10px] font-bold" style={{ width: '30%', backgroundColor: '#A78BFA', color: 'var(--primary-foreground)', opacity: 0.4 }}>30%</div>
+                  <div className="h-full flex items-center justify-center text-[10px] font-bold" style={{ width: '20%', backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', opacity: 0.4 }}>20%</div>
                 </div>
               </div>
 
@@ -520,7 +502,7 @@ export default function InsightsPage() {
                   <span>Wants {formatCurrency(needsWants.wants)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#64FFDA' }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
                   <span>Savings {formatCurrency(needsWants.savings)}</span>
                 </div>
               </div>
@@ -538,7 +520,7 @@ export default function InsightsPage() {
                   const barHeight = (month.rate / maxTrendRate) * 100;
                   return (
                     <div key={month.month} className="flex flex-col items-center gap-2 flex-1 max-w-[80px]">
-                      <span className="text-xs font-semibold" style={{ color: '#64FFDA' }}>
+                      <span className="text-xs font-semibold" style={{ color: 'var(--primary)' }}>
                         {month.rate}%
                       </span>
                       <div className="w-full relative" style={{ height: '100px' }}>
@@ -557,7 +539,7 @@ export default function InsightsPage() {
                 })}
               </div>
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
-                <TrendingUp className="h-4 w-4" style={{ color: '#64FFDA' }} aria-hidden="true" />
+                <TrendingUp className="h-4 w-4" style={{ color: 'var(--primary)' }} aria-hidden="true" />
                 <span>Trending up — you&apos;re building momentum!</span>
               </div>
             </CardContent>

@@ -15,8 +15,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  TreeDeciduous,
-  ArrowLeft,
   Plus,
   ReceiptText,
   ChevronLeft,
@@ -26,7 +24,7 @@ import {
   Zap,
   Check,
 } from 'lucide-react';
-import Link from 'next/link';
+import { AppHeader } from '@/components/navigation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -171,11 +169,11 @@ function getStatusColor(status: string): string {
     case 'auto-pay':
       return '#64FFDA';
     case 'due-soon':
-      return '#FFD93D';
+      return 'var(--chart-3)';
     case 'overdue':
-      return '#FF6B6B';
+      return 'var(--destructive)';
     default:
-      return '#c0ddd0';
+      return 'var(--secondary-foreground)';
   }
 }
 
@@ -345,7 +343,7 @@ function BillForm({
               }}
               aria-pressed={recurring}
             >
-              <span className="text-xs" style={{ color: recurring ? '#64FFDA' : '#c0ddd0' }}>↻</span>
+              <span className="text-xs" style={{ color: recurring ? '#64FFDA' : 'var(--secondary-foreground)' }}>↻</span>
               Recurring
             </button>
             <button
@@ -358,7 +356,7 @@ function BillForm({
               }}
               aria-pressed={autoPay}
             >
-              <Zap className="h-3 w-3" style={{ color: autoPay ? '#64FFDA' : '#c0ddd0' }} aria-hidden="true" />
+              <Zap className="h-3 w-3" style={{ color: autoPay ? '#64FFDA' : 'var(--secondary-foreground)' }} aria-hidden="true" />
               Auto-pay
             </button>
           </div>
@@ -530,25 +528,8 @@ export default function BillsPage() {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Header */}
-      <header
-        className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-        role="banner"
-      >
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
-              aria-label="Back to dashboard"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              <TreeDeciduous className="h-5 w-5 text-primary" aria-hidden="true" />
-            </Link>
-            <div className="flex items-center gap-2">
-              <ReceiptText className="h-5 w-5 text-primary" aria-hidden="true" />
-              <h1 className="text-lg font-semibold">Bills</h1>
-            </div>
-          </div>
+      <AppHeader
+        actions={
           <Button
             onClick={() => {
               setEditingBill(null);
@@ -561,8 +542,8 @@ export default function BillsPage() {
             <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
             <span className="hidden sm:inline">Add Bill</span>
           </Button>
-        </div>
-      </header>
+        }
+      />
 
       {/* Main Content */}
       <main id="main-content" className="container mx-auto py-6 px-4 max-w-5xl" role="main">
@@ -572,22 +553,22 @@ export default function BillsPage() {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <p className="text-sm text-muted-foreground">Total Due This Month</p>
-                <p className="text-2xl font-bold money-amount" style={{ color: '#64FFDA' }}>
+                <p className="text-2xl font-bold money-amount" style={{ color: 'var(--primary)' }}>
                   {formatCurrency(monthlyTotal)}
                 </p>
               </div>
               <div className="text-right text-sm space-y-0.5">
                 {statusCounts.overdue > 0 && (
-                  <p style={{ color: '#FF6B6B' }}>
+                  <p style={{ color: 'var(--destructive)' }}>
                     {statusCounts.overdue} overdue
                   </p>
                 )}
                 {statusCounts.dueSoon > 0 && (
-                  <p style={{ color: '#FFD93D' }}>
+                  <p style={{ color: 'var(--chart-3)' }}>
                     {statusCounts.dueSoon} due soon
                   </p>
                 )}
-                <p style={{ color: '#64FFDA' }}>
+                <p style={{ color: 'var(--primary)' }}>
                   {statusCounts.paid + statusCounts.autoPay} paid/auto
                 </p>
               </div>
@@ -595,15 +576,15 @@ export default function BillsPage() {
             {/* Legend */}
             <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: '#64FFDA' }} />
+                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: 'var(--primary)' }} />
                 Paid / Auto-pay
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: '#FFD93D' }} />
+                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: 'var(--chart-3)' }} />
                 Due within 3 days
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: '#FF6B6B' }} />
+                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: 'var(--destructive)' }} />
                 Overdue
               </span>
             </div>
@@ -671,7 +652,7 @@ export default function BillsPage() {
                         <span
                           className="text-xs font-medium block mb-0.5"
                           style={{
-                            color: todayHighlight ? '#64FFDA' : '#c0ddd0',
+                            color: todayHighlight ? '#64FFDA' : 'var(--secondary-foreground)',
                           }}
                         >
                           {day}
@@ -746,7 +727,7 @@ export default function BillsPage() {
                               className="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0"
                               style={{
                                 backgroundColor: 'rgba(100, 255, 218, 0.12)',
-                                color: '#64FFDA',
+                                color: 'var(--primary)',
                               }}
                             >
                               <Zap className="h-2.5 w-2.5 inline -mt-0.5" aria-hidden="true" /> Auto

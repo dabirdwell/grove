@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
+import { AppShell } from "@/components/navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +29,9 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        {children}
+        <AppShell>
+          {children}
+        </AppShell>
         <Toaster position="top-center" richColors />
       </body>
     </html>

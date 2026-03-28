@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- Grove apple touch icon -->
+  <rect width="180" height="180" rx="40" fill="#0A1628"/>
+  <!-- Trunk -->
+  <rect x="82" y="115" width="16" height="35" rx="4" fill="#5D4037"/>
+  <!-- Canopy -->
+  <ellipse cx="90" cy="78" rx="48" ry="38" fill="#2E7D32"/>
+  <ellipse cx="90" cy="65" rx="38" ry="28" fill="#43A047"/>
+  <ellipse cx="90" cy="55" rx="24" ry="18" fill="#66BB6A"/>
+  <!-- Glow -->
+  <circle cx="90" cy="55" r="6" fill="#64FFDA" opacity="0.6"/>
+</svg>

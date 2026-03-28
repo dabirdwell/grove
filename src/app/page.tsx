@@ -19,15 +19,14 @@ const MoneyTree3D = dynamic(
 function TreeLoadingState() {
   return (
     <div 
-      className="flex items-center justify-center h-[400px] rounded-lg"
-      style={{ background: 'linear-gradient(to bottom, #0a1628, #134e5e)' }}
+      className="flex items-center justify-center h-[400px] rounded-lg bg-muted"
     >
       <div className="text-center">
         <div 
           className="w-3 h-3 rounded-full mx-auto mb-3 animate-pulse"
-          style={{ backgroundColor: '#64ffda' }}
+          style={{ backgroundColor: 'var(--primary)' }}
         />
-        <p style={{ color: '#64ffda', opacity: 0.7 }}>
+        <p style={{ color: 'var(--primary)', opacity: 0.7 }}>
           Growing...
         </p>
       </div>
@@ -41,6 +40,7 @@ import { AnimatedCard } from '@/components/ui/animated-card';
 import { celebrations } from '@/components/ui/confetti';
 import { Skeleton, LoadingOverlay } from '@/components/ui/loading';
 import { OnboardingWizard } from '@/components/onboarding';
+import { AppHeader } from '@/components/navigation';
 import { PlaidLinkButton } from '@/components/plaid';
 import { useSoundEffects } from '@/hooks/use-sound-effects';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
@@ -48,19 +48,14 @@ import { friendlyError } from '@/lib/friendly-errors';
 import { toast } from 'sonner';
 import {
   Plus,
-  Wallet,
   Settings,
-  HelpCircle,
   RefreshCw,
   Volume2,
   VolumeX,
   Building2,
-  TreeDeciduous,
   Droplets,
-  CalendarDays,
   Target,
   ReceiptText,
-  BarChart3,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
@@ -225,7 +220,7 @@ function GoalsOverview() {
                 <div className="h-2 rounded-full overflow-hidden bg-secondary">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ backgroundColor: percent >= 100 ? '#FFD93D' : '#64FFDA' }}
+                    style={{ backgroundColor: percent >= 100 ? 'var(--chart-3)' : 'var(--primary)' }}
                     initial={{ width: 0 }}
                     animate={{ width: `${percent}%` }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -334,11 +329,11 @@ function UpcomingBills() {
           {/* Payday + week total */}
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-muted-foreground">
-              Next payday: <span style={{ color: '#64FFDA' }}>{nextPayday} day{nextPayday !== 1 ? 's' : ''}</span>
+              Next payday: <span style={{ color: 'var(--primary)' }}>{nextPayday} day{nextPayday !== 1 ? 's' : ''}</span>
             </span>
             {weekTotal > 0 && (
               <span className="text-muted-foreground">
-                This week: <span className="money-amount" style={{ color: '#FFD93D' }}>
+                This week: <span className="money-amount" style={{ color: 'var(--chart-3)' }}>
                   ${weekTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </span>
@@ -356,7 +351,7 @@ function UpcomingBills() {
                     backgroundColor: bill.daysUntil <= 3
                       ? 'rgba(255, 217, 61, 0.12)'
                       : 'rgba(100, 255, 218, 0.08)',
-                    color: bill.daysUntil <= 3 ? '#FFD93D' : '#c0ddd0',
+                    color: bill.daysUntil <= 3 ? 'var(--chart-3)' : 'var(--secondary-foreground)',
                   }}
                 >
                   {bill.daysUntil === 0
@@ -368,7 +363,7 @@ function UpcomingBills() {
               </div>
               <span
                 className="money-amount text-sm font-semibold flex-shrink-0 ml-2"
-                style={{ color: bill.daysUntil <= 3 ? '#FFD93D' : '#64FFDA' }}
+                style={{ color: bill.daysUntil <= 3 ? 'var(--chart-3)' : 'var(--primary)' }}
               >
                 ${bill.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
@@ -837,7 +832,7 @@ export default function Dashboard() {
 
   // Memoize tree branches to prevent Canvas remounting
   const treeBranches = useMemo(() => {
-    const colors = ['#64FFDA', '#4FD1C5', '#81E6D9', '#FFD93D', '#FF6B6B'];
+    const colors = ['var(--primary)', 'var(--chart-2)', 'var(--chart-5)', 'var(--chart-3)', 'var(--destructive)'];
     const totalIncome = getTotalIncome();
     return buckets.map((bucket, index) => {
       let percentage = 0;
@@ -881,41 +876,9 @@ export default function Dashboard() {
       )}
 
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" role="banner">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
-            <span className="text-xl font-bold">Grove</span>
-            <Link
-              href="/goals"
-              className="ml-3 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
-            >
-              <Target className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Goals</span>
-            </Link>
-            <Link
-              href="/budget"
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
-            >
-              <CalendarDays className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Budget</span>
-            </Link>
-            <Link
-              href="/bills"
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
-            >
-              <ReceiptText className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Bills</span>
-            </Link>
-            <Link
-              href="/insights"
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-2"
-            >
-              <BarChart3 className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Insights</span>
-            </Link>
-          </div>
-          <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
+      <AppHeader
+        actions={
+          <>
             <Button
               variant="outline"
               size="sm"
@@ -938,31 +901,15 @@ export default function Dashboard() {
             <Button
               variant="ghost"
               size="icon"
-              className="hidden sm:inline-flex min-w-[44px] min-h-[44px]"
-              aria-label="Refresh data"
-            >
-              <RefreshCw className="h-5 w-5" aria-hidden="true" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
               onClick={() => setShowOnboarding(true)}
               aria-label="Settings and setup wizard"
               className="min-w-[44px] min-h-[44px]"
             >
               <Settings className="h-5 w-5" aria-hidden="true" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden sm:inline-flex min-w-[44px] min-h-[44px]"
-              aria-label="Help and keyboard shortcuts"
-            >
-              <HelpCircle className="h-5 w-5" aria-hidden="true" />
-            </Button>
-          </nav>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {/* Main Content */}
       <main id="main-content" className="container mx-auto py-6 px-4 max-w-7xl" role="main">
@@ -1032,7 +979,7 @@ export default function Dashboard() {
             <Card className="overflow-hidden border-0 shadow-2xl grove-card-glow" role="region" aria-label="Money tree visualization">
               <CardHeader className="bg-gradient-to-r from-[#0a1628] to-[#0d2137] text-white border-b border-white/10 py-3">
                 <CardTitle className="text-[#e8f4f0] text-base">Your Money Tree</CardTitle>
-                <CardDescription className="text-[#c0ddd0] text-xs">
+                <CardDescription className="text-secondary-foreground text-xs">
                   Rotate to explore · Tap branches to edit
                 </CardDescription>
               </CardHeader>
@@ -1099,7 +1046,7 @@ export default function Dashboard() {
             <Card className="grove-card-glow">
               <CardContent className="pt-6 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Savings Rate</p>
-                <p className="text-2xl font-bold mt-1" style={{ color: '#64ffda' }}>
+                <p className="text-2xl font-bold mt-1" style={{ color: 'var(--primary)' }}>
                   {Math.round((allocationResult.summary.savingsRate || 0) * 100)}%
                 </p>
               </CardContent>

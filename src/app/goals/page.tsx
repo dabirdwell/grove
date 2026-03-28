@@ -4,7 +4,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
@@ -15,8 +14,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TreeDeciduous, ArrowLeft, Plus, Target, Sprout } from 'lucide-react';
-import Link from 'next/link';
+import { Plus, Target, Sprout } from 'lucide-react';
+import { AppHeader } from '@/components/navigation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -197,7 +196,7 @@ function GoalCard({
             {/* Info */}
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-base truncate">{goal.name}</h3>
-              <p className="text-2xl font-bold money-amount mt-1" style={{ color: '#64FFDA' }}>
+              <p className="text-2xl font-bold money-amount mt-1" style={{ color: 'var(--primary)' }}>
                 {percent}%
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -208,13 +207,13 @@ function GoalCard({
               <p className="text-sm text-muted-foreground mt-2">
                 {remaining > 0
                   ? <>{formatCurrency(remaining)} remaining</>
-                  : <span style={{ color: '#64FFDA' }}>Goal reached!</span>
+                  : <span style={{ color: 'var(--primary)' }}>Goal reached!</span>
                 }
               </p>
 
               {/* Deadline / Estimate */}
               {deadline && (
-                <p className="text-xs mt-1" style={{ color: deadline.onTrack ? '#64FFDA' : '#FF6B6B' }}>
+                <p className="text-xs mt-1" style={{ color: deadline.onTrack ? '#64FFDA' : 'var(--destructive)' }}>
                   {deadline.onTrack ? 'On track!' : 'Behind schedule'} · {deadline.text}
                 </p>
               )}
@@ -235,7 +234,7 @@ function GoalCard({
           <div className="mt-3 h-2 rounded-full overflow-hidden bg-secondary">
             <motion.div
               className="h-full rounded-full"
-              style={{ backgroundColor: percent >= 100 ? '#FFD93D' : '#64FFDA' }}
+              style={{ backgroundColor: percent >= 100 ? 'var(--chart-3)' : '#64FFDA' }}
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(percent, 100)}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -430,7 +429,7 @@ function AddFundsModal({
         <div className="py-2 space-y-4">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">Remaining to grow</p>
-            <p className="text-2xl font-bold money-amount" style={{ color: '#64FFDA' }}>
+            <p className="text-2xl font-bold money-amount" style={{ color: 'var(--primary)' }}>
               {formatCurrency(remaining)}
             </p>
           </div>
@@ -550,25 +549,7 @@ export default function GoalsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <TreeDeciduous className="h-6 w-6 text-primary" aria-hidden="true" />
-              <span className="text-xl font-bold">Grove</span>
-            </Link>
-            <Separator orientation="vertical" className="h-6 mx-2" />
-            <Target className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            <span className="text-sm text-muted-foreground font-medium">Goals</span>
-          </div>
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="min-h-[44px]">
-              <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
-              Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Main */}
       <main id="main-content" className="container mx-auto py-6 px-4 max-w-5xl" role="main">
@@ -599,7 +580,7 @@ export default function GoalsPage() {
               <div className="grid gap-4 sm:grid-cols-3 text-center">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Saved</p>
-                  <p className="text-2xl font-bold money-amount mt-1" style={{ color: '#64FFDA' }}>
+                  <p className="text-2xl font-bold money-amount mt-1" style={{ color: 'var(--primary)' }}>
                     {formatCurrency(totalSaved)}
                   </p>
                 </div>
@@ -609,13 +590,13 @@ export default function GoalsPage() {
                     <div className="flex-1 max-w-[160px] h-3 rounded-full overflow-hidden bg-secondary">
                       <motion.div
                         className="h-full rounded-full"
-                        style={{ backgroundColor: '#64FFDA' }}
+                        style={{ backgroundColor: 'var(--primary)' }}
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(overallPercent, 100)}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
                       />
                     </div>
-                    <span className="text-lg font-bold" style={{ color: '#64FFDA' }}>
+                    <span className="text-lg font-bold" style={{ color: 'var(--primary)' }}>
                       {overallPercent}%
                     </span>
                   </div>
