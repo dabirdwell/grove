@@ -14,6 +14,7 @@ import {
   ReceiptText,
   Target,
   BarChart3,
+  Settings,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -70,9 +71,16 @@ export function AppHeader({ actions }: AppHeaderProps) {
           </nav>
         </div>
 
-        {/* Right side: actions + theme toggle */}
+        {/* Right side: actions + settings + theme toggle */}
         <div className="flex items-center gap-1">
           {actions}
+          <Link
+            href="/settings"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground min-w-[44px] min-h-[44px]"
+            aria-label="Settings"
+          >
+            <Settings className="h-5 w-5" aria-hidden="true" />
+          </Link>
           <Button
             variant="ghost"
             size="icon"
