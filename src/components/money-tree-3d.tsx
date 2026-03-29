@@ -2,9 +2,8 @@
 
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { 
-  OrbitControls, 
-  Sparkles,
+import {
+  OrbitControls,
   Text,
 } from '@react-three/drei';
 import * as THREE from 'three';
@@ -524,21 +523,41 @@ function OrganicBranch({
 
 function LagoonWater() {
   const meshRef = useRef<THREE.Mesh>(null);
-  
+  const originalPositions = useRef<Float32Array | null>(null);
+
   useFrame((state) => {
-    if (meshRef.current) {
-      // Very subtle vertex displacement for water ripple feel
-      meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.3) * 0.002;
+    if (!meshRef.current) return;
+
+    const positions = meshRef.current.geometry.attributes.position;
+
+    // Store original positions on first frame
+    if (!originalPositions.current) {
+      originalPositions.current = new Float32Array(positions.array as Float32Array);
     }
+
+    const t = state.clock.elapsedTime * 0.3;
+    const orig = originalPositions.current;
+    const arr = positions.array as Float32Array;
+
+    // Vertex displacement for gentle waves
+    // PlaneGeometry lies in XY, rotated -PI/2 around X → local Z becomes world Y
+    for (let i = 0; i < positions.count; i++) {
+      const x = orig[i * 3];
+      const y = orig[i * 3 + 1];
+      arr[i * 3 + 2] = Math.sin(x * 1.5 + t) * Math.cos(y * 1.5 + t * 0.7) * 0.05
+        + Math.sin(x * 3 + t * 1.3) * 0.02;
+    }
+
+    positions.needsUpdate = true;
   });
 
   return (
     <group>
-      {/* Main water surface */}
+      {/* Main water surface with wave displacement */}
       <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.35, 0]}>
-        <circleGeometry args={[5, 64]} />
+        <planeGeometry args={[12, 12, 32, 32]} />
         <meshStandardMaterial
-          color="#0b2a3a"
+          color="#0D2137"
           metalness={0.85}
           roughness={0.15}
           transparent
@@ -546,7 +565,19 @@ function LagoonWater() {
           envMapIntensity={0.5}
         />
       </mesh>
-      
+
+      {/* Surface highlights — subtle teal shimmer */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.34, 0]}>
+        <circleGeometry args={[4, 48]} />
+        <meshStandardMaterial
+          color="#134E5E"
+          metalness={0.9}
+          roughness={0.1}
+          transparent
+          opacity={0.12}
+        />
+      </mesh>
+
       {/* Deeper water layer for depth */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
         <circleGeometry args={[6, 32]} />
@@ -729,6 +760,66 @@ function GrottoRocks() {
 }
 
 
+// ─── AMBIENT PARTICLES ────────────────────────────────────────────────
+// Very faint particle dust floating upward — underwater bubbles / pollen
+
+function AmbientParticles({ count = 80 }: { count?: number }) {
+  const pointsRef = useRef<THREE.Points>(null);
+
+  const speeds = useMemo(() => {
+    const s = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      s[i] = 0.003 + Math.random() * 0.007;
+    }
+    return s;
+  }, [count]);
+
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 8;
+      positions[i * 3 + 1] = Math.random() * 5 - 0.5;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [count]);
+
+  useFrame(() => {
+    if (!pointsRef.current) return;
+    const posAttr = pointsRef.current.geometry.attributes.position;
+    const arr = posAttr.array as Float32Array;
+
+    for (let i = 0; i < count; i++) {
+      // Slow upward drift
+      arr[i * 3 + 1] += speeds[i];
+
+      // Wrap around when above scene
+      if (arr[i * 3 + 1] > 5) {
+        arr[i * 3 + 1] = -0.5;
+        arr[i * 3] = (Math.random() - 0.5) * 8;
+        arr[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      }
+    }
+
+    posAttr.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
+        color="#64FFDA"
+        size={0.012}
+        transparent
+        opacity={0.15}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 // ─── FIREFLY IMPORT ────────────────────────────────────────────────────
 import { FireflySwarm } from './lazy-firefly';
 
@@ -855,23 +946,15 @@ function MoneyTreeScene({
       <GrottoRocks />
       
       {/* Fireflies */}
-      <FireflySwarm 
-        count={10}
+      <FireflySwarm
+        count={30}
         center={[0, 1.5, 0]}
-        spread={{ x: 3, y: 2, z: 3 }}
-        bounds={{ x: 2, y: 1, z: 2 }}
+        spread={{ x: 3, y: 2.5, z: 3 }}
+        bounds={{ x: 2.5, y: 1.5, z: 2.5 }}
       />
       
-      {/* Ambient sparkles */}
-      <Sparkles
-        count={25}
-        scale={[5, 4, 5]}
-        position={[0, 1.5, 0]}
-        size={1.5}
-        speed={0.2}
-        color="#64ffda"
-        opacity={0.3}
-      />
+      {/* Ambient particles — faint upward-drifting dust */}
+      <AmbientParticles count={80} />
       
       {/* Controls */}
       <OrbitControls
@@ -914,7 +997,7 @@ export function MoneyTree3D({
   }, [branches]);
 
   return (
-    <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: 'linear-gradient(to bottom, #091a2a, #0d3a3a, #0a2a1a)' }}>
+    <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: 'linear-gradient(to bottom, #0A1628, #0D2137, #070B14)' }}>
       <Canvas
         camera={{ position: [3.5, 2.5, 5], fov: 38 }}
         gl={{ 
@@ -935,8 +1018,8 @@ export function MoneyTree3D({
         }}
         frameloop="always"
       >
-        <color attach="background" args={['#091a2a']} />
-        <fog attach="fog" args={['#091a2a', 6, 14]} />
+        <color attach="background" args={['#0A1628']} />
+        <fogExp2 attach="fog" args={['#0A1628', 0.03]} />
 
         <MoneyTreeScene
           branches={treeBranches}

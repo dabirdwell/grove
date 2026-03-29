@@ -36,10 +36,10 @@ export function LazyFirefly({
   
   // Each firefly gets unique characteristics
   const characteristics = useMemo(() => ({
-    // How often it flashes (every 3-8 seconds)
-    flashInterval: 3 + Math.random() * 5,
-    // When in the cycle it starts
-    flashOffset: Math.random() * 10,
+    // Slow pulse: 2-4 second cycle
+    pulseSpeed: 1.5 + Math.random() * 1.5,
+    // Random phase offset
+    pulsePhase: Math.random() * Math.PI * 2,
     // How strongly it responds to random impulses
     jitter: 0.0005 + Math.random() * 0.0005,
     // Damping factor (lower = more momentum, higher = more responsive)
@@ -48,27 +48,6 @@ export function LazyFirefly({
     maxSpeed: 0.015 + Math.random() * 0.01,
   }), []);
   
-  // Firefly flash pattern: quick rise, slow fall
-  const getFlashIntensity = (t: number): number => {
-    const { flashInterval, flashOffset } = characteristics;
-    
-    // Where are we in the flash cycle? (0 to 1)
-    const cyclePosition = ((t + flashOffset) % flashInterval) / flashInterval;
-    
-    // Flash happens in first 15% of cycle
-    if (cyclePosition < 0.15) {
-      // Quick ramp up (first 5% of flash period)
-      if (cyclePosition < 0.05) {
-        return cyclePosition / 0.05; // 0 to 1 quickly
-      }
-      // Slower fade down (remaining 10% of flash period)
-      return 1 - ((cyclePosition - 0.05) / 0.10);
-    }
-    
-    // Rest of cycle: dim glow (not completely dark)
-    return 0.05;
-  };
-
   useFrame((state) => {
     if (!meshRef.current) return;
     
@@ -111,23 +90,22 @@ export function LazyFirefly({
       velocity.z -= Math.sign(position.z - centerZ) * pullStrength;
     }
     
-    // Flash intensity
-    const intensity = getFlashIntensity(t);
-    
-    // Update material - using emissive for glow, no pointLight needed
+    // Slow sine pulsing: opacity 0.3 to 0.8 over 2-4 seconds
+    const { pulseSpeed, pulsePhase } = characteristics;
+    const pulse = (Math.sin(t * pulseSpeed + pulsePhase) + 1) / 2;
     const material = meshRef.current.material as THREE.MeshStandardMaterial;
-    material.emissiveIntensity = intensity * 2;
-    material.opacity = 0.4 + intensity * 0.6;
+    material.emissiveIntensity = 0.5 + pulse * 1.5;
+    material.opacity = 0.3 + pulse * 0.5;
   });
 
   return (
     <mesh ref={meshRef} position={initialPosition}>
-      <sphereGeometry args={[0.03, 8, 8]} />
-      <meshStandardMaterial 
-        color="#ffd93d"
-        emissive="#ffd93d"
+      <sphereGeometry args={[0.02, 6, 6]} />
+      <meshStandardMaterial
+        color="#64FFDA"
+        emissive="#64FFDA"
         emissiveIntensity={0.1}
-        transparent 
+        transparent
         opacity={0.4}
       />
     </mesh>
