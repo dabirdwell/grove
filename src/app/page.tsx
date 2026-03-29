@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { AnimatedSankey, generateFlowData } from '@/components/flow';
+import { AnimatedSankey, SankeyDiagram, generateFlowData } from '@/components/flow';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
@@ -56,6 +56,8 @@ import {
   Droplets,
   Target,
   ReceiptText,
+  Waves,
+  TreePine,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { SafeAccount, BucketConfig, AllocationResult, FlowData } from '@/types';
@@ -401,6 +403,7 @@ export default function Dashboard() {
   const [hasAllocatedBefore, setHasAllocatedBefore] = useState(false);
   const [showMobileAllocate, setShowMobileAllocate] = useState(false);
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<'tree' | 'flow'>('tree');
 
   // Sound effects (disabled by default)
   const { play: playSound, enabled: soundEnabled, toggle: toggleSound } = useSoundEffects({ enabled: false });
@@ -449,9 +452,40 @@ export default function Dashboard() {
     };
   }, []);
 
+  // Check if first-time visitor — show onboarding wizard
+  useEffect(() => {
+    try {
+      const completed = localStorage.getItem('grove-onboarding-completed');
+      if (!completed) {
+        setShowOnboarding(true);
+        setHasCompletedOnboarding(false);
+      }
+    } catch {
+      // localStorage unavailable, keep demo mode
+    }
+  }, []);
+
   // Get master account
   const masterAccount = accounts.find(a => a.accountId === masterAccountId);
   const externalAccounts = accounts.filter(a => a.accountId !== masterAccountId);
+
+  // Generate Sankey preview data from current buckets (computed after masterAccount)
+  const sankeyData = useMemo(() => {
+    if (flowData.nodes.length > 0) return flowData;
+    if (buckets.length === 0 || !masterAccount) return { nodes: [], links: [] };
+    // Build a simple preview: estimate allocations from bucket config
+    const balance = masterAccount.balance || 3850;
+    let remaining = balance;
+    const details: Array<{ bucketId: string; name: string; emoji?: string; allocationType: string; allocated: number; virtualBalance: number }> = [];
+    const fixed = buckets.filter(b => b.allocationType === 'fixed_dollar');
+    for (const b of fixed) { const a = Math.min(b.value, remaining); remaining -= a; details.push({ bucketId: b.bucketId, name: b.name, emoji: b.emoji, allocationType: b.allocationType, allocated: a, virtualBalance: a }); }
+    const pctIncome = buckets.filter(b => b.allocationType === 'percent_of_income');
+    for (const b of pctIncome) { const a = Math.min(balance * b.value, remaining); remaining -= a; details.push({ bucketId: b.bucketId, name: b.name, emoji: b.emoji, allocationType: b.allocationType, allocated: a, virtualBalance: a }); }
+    const disc = buckets.filter(b => b.allocationType === 'percent_of_discretionary');
+    const pool = remaining;
+    for (const b of disc) { const a = pool * b.value; remaining -= a; details.push({ bucketId: b.bucketId, name: b.name, emoji: b.emoji, allocationType: b.allocationType, allocated: a, virtualBalance: a }); }
+    return generateFlowData(balance, masterAccount.name || 'Main Account', details);
+  }, [flowData, buckets, masterAccount]);
 
   // Demo allocation logic (client-side, no database required)
   const runDemoAllocation = useCallback((amount: number) => {
@@ -1071,7 +1105,59 @@ export default function Dashboard() {
 
         <Separator className="my-8" />
 
+        {/* Flow View Toggle */}
+        <div className="flex items-center gap-2 mb-4">
+          <Button
+            variant={viewMode === 'tree' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('tree')}
+            className="min-h-[36px]"
+          >
+            <TreePine className="h-4 w-4 mr-1.5" aria-hidden="true" />
+            Branches
+          </Button>
+          <Button
+            variant={viewMode === 'flow' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('flow')}
+            className="min-h-[36px]"
+          >
+            <Waves className="h-4 w-4 mr-1.5" aria-hidden="true" />
+            Flow View
+          </Button>
+        </div>
+
+        {/* Sankey Flow Visualization */}
+        {viewMode === 'flow' && (
+          <section aria-label="Money flow visualization" className="mb-8">
+            <Card className="grove-card-glow overflow-hidden">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Money Flow</CardTitle>
+                <CardDescription>
+                  Watch how your income flows into each branch
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {sankeyData.nodes.length > 0 ? (
+                  <AnimatedSankey
+                    data={sankeyData}
+                    height={400}
+                    animated={isFlowAnimating}
+                    onAnimationComplete={() => setIsFlowAnimating(false)}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                    <Waves className="h-10 w-10 mb-3 opacity-40" />
+                    <p className="text-sm">Allocate income to see your money flow</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        )}
+
         {/* Buckets Section */}
+        {viewMode === 'tree' && (
         <section aria-label="Your budget branches">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -1149,6 +1235,7 @@ export default function Dashboard() {
             </AnimatedCard>
           )}
         </section>
+        )}
 
         {/* Budget Summary */}
         {allocationResult && allocationResult.summary && (
@@ -1240,6 +1327,7 @@ export default function Dashboard() {
               }
               setHasCompletedOnboarding(true);
               setShowOnboarding(false);
+              localStorage.setItem('grove-onboarding-completed', 'true');
               toast.success('Your grove is ready! 🌳', {
                 description: 'Time to plant your first branches.',
               });

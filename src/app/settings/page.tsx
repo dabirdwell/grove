@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AppHeader } from '@/components/navigation';
+import { PlaidLinkButton } from '@/components/plaid';
 import { useTheme } from '@/hooks/use-theme';
 import { useSoundEffects } from '@/hooks/use-sound-effects';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ import {
   Download,
   RotateCcw,
   Settings,
+  Building2,
 } from 'lucide-react';
 
 // localStorage keys used across the app
@@ -298,6 +300,29 @@ export default function SettingsPage() {
                     className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow]"
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* ── Connected Accounts ── */}
+            <Card className="grove-card-glow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Connected Accounts</CardTitle>
+                <CardDescription>Link your bank for real-time balance updates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PlaidLinkButton
+                  onSuccess={(accounts) => {
+                    toast.success(`Connected ${accounts.length} account${accounts.length !== 1 ? 's' : ''}!`);
+                  }}
+                  variant="outline"
+                  className="w-full justify-start gap-2"
+                >
+                  <Building2 className="h-4 w-4" aria-hidden="true" />
+                  Connect Bank Account
+                </PlaidLinkButton>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Uses Plaid to securely link your bank. Your credentials are never stored.
+                </p>
               </CardContent>
             </Card>
 
