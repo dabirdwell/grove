@@ -28,6 +28,7 @@ import {
   RotateCcw,
   Settings,
   Building2,
+  Target,
 } from 'lucide-react';
 
 // localStorage keys used across the app
@@ -40,6 +41,22 @@ const STORAGE_KEYS = {
   income: 'grove-income',
   sound: 'grove-sound-enabled',
 } as const;
+
+const BUDGET_CATEGORIES = [
+  { id: 'housing',        name: 'Housing',   emoji: '🏠', defaultBudget: 1500 },
+  { id: 'food',           name: 'Food',      emoji: '🛒', defaultBudget: 600 },
+  { id: 'transportation', name: 'Transport', emoji: '🚗', defaultBudget: 400 },
+  { id: 'healthcare',     name: 'Healthcare', emoji: '💊', defaultBudget: 200 },
+  { id: 'utilities',      name: 'Utilities', emoji: '⚡', defaultBudget: 250 },
+  { id: 'entertainment',  name: 'Fun',       emoji: '🎉', defaultBudget: 200 },
+  { id: 'savings',        name: 'Savings',   emoji: '💰', defaultBudget: 500 },
+  { id: 'other',          name: 'Other',     emoji: '📦', defaultBudget: 200 },
+];
+
+function currentMonthKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
 
 type PayFrequency = 'weekly' | 'biweekly' | 'monthly';
 
@@ -100,7 +117,14 @@ function resetDemoData() {
   for (const storageKey of Object.values(STORAGE_KEYS)) {
     localStorage.removeItem(storageKey);
   }
-  toast.success('Demo data cleared — refreshing...');
+  // Clear budget month data and onboarding flag
+  const keys = Object.keys(localStorage);
+  for (const key of keys) {
+    if (key.startsWith('grove-budget-') || key === 'grove-onboarding-complete') {
+      localStorage.removeItem(key);
+    }
+  }
+  toast.success('All data cleared — refreshing...');
   setTimeout(() => window.location.replace('/'), 600);
 }
 
@@ -115,6 +139,13 @@ export default function SettingsPage() {
   const [income, setIncome] = useState('');
   const [mounted, setMounted] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [budgets, setBudgets] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const cat of BUDGET_CATEGORIES) {
+      initial[cat.id] = String(cat.defaultBudget);
+    }
+    return initial;
+  });
 
   // Load persisted settings on mount
   useEffect(() => {
@@ -135,6 +166,23 @@ export default function SettingsPage() {
     try {
       const storedIncome = localStorage.getItem(STORAGE_KEYS.income);
       if (storedIncome) setIncome(storedIncome);
+    } catch { /* ignore */ }
+
+    try {
+      const mk = currentMonthKey();
+      const raw = localStorage.getItem(`grove-budget-${mk}`);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.budgets) {
+          setBudgets(prev => {
+            const next = { ...prev };
+            for (const [k, v] of Object.entries(data.budgets)) {
+              next[k] = String(v);
+            }
+            return next;
+          });
+        }
+      }
     } catch { /* ignore */ }
   }, []);
 
@@ -161,6 +209,27 @@ export default function SettingsPage() {
     const cleaned = value.replace(/[^\d.]/g, '');
     setIncome(cleaned);
     localStorage.setItem(STORAGE_KEYS.income, cleaned);
+  }, []);
+
+  // Persist budget targets
+  const handleBudgetChange = useCallback((categoryId: string, value: string) => {
+    const cleaned = value.replace(/[^\d.]/g, '');
+    setBudgets(prev => {
+      const next = { ...prev, [categoryId]: cleaned };
+      // Save to current month's budget data
+      try {
+        const mk = currentMonthKey();
+        const raw = localStorage.getItem(`grove-budget-${mk}`);
+        const data = raw ? JSON.parse(raw) : { income: 0, entries: [], budgets: {} };
+        const budgetNums: Record<string, number> = {};
+        for (const [k, v] of Object.entries(next)) {
+          budgetNums[k] = parseFloat(v) || 0;
+        }
+        data.budgets = budgetNums;
+        localStorage.setItem(`grove-budget-${mk}`, JSON.stringify(data));
+      } catch { /* ignore */ }
+      return next;
+    });
   }, []);
 
   if (!mounted) return null;
@@ -300,6 +369,35 @@ export default function SettingsPage() {
                     className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow]"
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* ── Budget Targets ── */}
+            <Card className="grove-card-glow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Budget Targets</CardTitle>
+                <CardDescription>Monthly spending targets for each category</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {BUDGET_CATEGORIES.map((cat) => (
+                  <div key={cat.id} className="flex items-center gap-3">
+                    <span className="text-lg w-7 text-center flex-shrink-0">{cat.emoji}</span>
+                    <span className="text-sm font-medium flex-1 min-w-0 truncate">{cat.name}</span>
+                    <div className="relative w-24 flex-shrink-0">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={budgets[cat.id]}
+                        onChange={(e) => handleBudgetChange(cat.id, e.target.value)}
+                        className="w-full rounded-md border border-input bg-transparent pl-6 pr-2 py-1.5 text-sm text-right tabular-nums shadow-xs focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow]"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground pt-1">
+                  Changes apply to the current month. Adjust targets in the Budget tab for other months.
+                </p>
               </CardContent>
             </Card>
 

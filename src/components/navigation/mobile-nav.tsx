@@ -6,17 +6,15 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   CalendarDays,
-  ReceiptText,
-  Target,
-  BarChart3,
+  Sparkles,
+  Settings,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/budget', label: 'Budget', icon: CalendarDays },
-  { href: '/bills', label: 'Bills', icon: ReceiptText },
-  { href: '/goals', label: 'Goals', icon: Target },
-  { href: '/insights', label: 'Insights', icon: BarChart3 },
+  { href: '/getting-started', label: 'Setup', icon: Sparkles },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function MobileNav() {

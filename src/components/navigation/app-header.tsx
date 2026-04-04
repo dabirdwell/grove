@@ -11,18 +11,15 @@ import {
   Moon,
   Home,
   CalendarDays,
-  ReceiptText,
-  Target,
-  BarChart3,
+  Sparkles,
   Settings,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/budget', label: 'Budget', icon: CalendarDays },
-  { href: '/bills', label: 'Bills', icon: ReceiptText },
-  { href: '/goals', label: 'Goals', icon: Target },
-  { href: '/insights', label: 'Insights', icon: BarChart3 },
+  { href: '/getting-started', label: 'Setup', icon: Sparkles },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 interface AppHeaderProps {
@@ -71,16 +68,9 @@ export function AppHeader({ actions }: AppHeaderProps) {
           </nav>
         </div>
 
-        {/* Right side: actions + settings + theme toggle */}
+        {/* Right side: actions + theme toggle */}
         <div className="flex items-center gap-1">
           {actions}
-          <Link
-            href="/settings"
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground min-w-[44px] min-h-[44px]"
-            aria-label="Settings"
-          >
-            <Settings className="h-5 w-5" aria-hidden="true" />
-          </Link>
           <Button
             variant="ghost"
             size="icon"

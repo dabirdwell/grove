@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { AnimatedSankey, SankeyDiagram, generateFlowData } from '@/components/flow';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Dynamic import for 3D tree (needs to avoid SSR)
 const MoneyTree3D = dynamic(
@@ -383,6 +384,17 @@ function UpcomingBills() {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
+
+  // Redirect first-time users to onboarding
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem('grove-onboarding-complete')) {
+        router.replace('/getting-started');
+      }
+    } catch { /* ignore */ }
+  }, [router]);
+
   // State
   const [accounts, setAccounts] = useState<SafeAccount[]>(DEMO_ACCOUNTS);
   const [buckets, setBuckets] = useState<(BucketConfig & { virtualBalance?: number })[]>(DEMO_BUCKETS);
