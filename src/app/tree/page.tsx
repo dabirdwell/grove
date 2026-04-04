@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { AppHeader } from '@/components/navigation';
 import { Plus, Minus, RotateCcw, Droplets } from 'lucide-react';
 
 // Dynamic import to avoid SSR issues with Three.js
@@ -104,15 +105,17 @@ export default function TreeDemoPage() {
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
-      {/* Header */}
-      <header className="p-4 border-b border-[#64ffda]/20">
+      <AppHeader />
+
+      {/* Sub-header */}
+      <div className="p-4 border-b border-[#64ffda]/20">
         <h1 className="text-2xl font-bold text-[#64ffda]">
-          🌳 3D Money Tree Demo
+          🌳 3D Money Tree
         </h1>
         <p className="text-[#81e6d9]/70 text-sm">
           Drag to rotate • Scroll to zoom • Click branches to select
         </p>
-      </header>
+      </div>
 
       <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)]">
         {/* 3D Canvas */}

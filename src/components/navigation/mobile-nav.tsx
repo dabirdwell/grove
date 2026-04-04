@@ -6,14 +6,16 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   CalendarDays,
-  Sparkles,
+  TreePine,
+  Target,
   Settings,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/budget', label: 'Budget', icon: CalendarDays },
-  { href: '/getting-started', label: 'Setup', icon: Sparkles },
+  { href: '/tree', label: 'Tree', icon: TreePine },
+  { href: '/goals', label: 'Goals', icon: Target },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
