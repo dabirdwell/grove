@@ -16,6 +16,12 @@ const MoneyTree3D = dynamic(
   { ssr: false, loading: () => <TreeLoadingState /> }
 );
 
+// Dynamic import for ritual overlay (Three.js, no SSR)
+const RitualOverlay = dynamic(
+  () => import('@/components/ritual/ritual-overlay').then(mod => mod.RitualOverlay),
+  { ssr: false }
+);
+
 // Loading state for 3D tree
 function TreeLoadingState() {
   return (
@@ -44,6 +50,7 @@ import { OnboardingWizard } from '@/components/onboarding';
 import { AppHeader } from '@/components/navigation';
 import { PlaidLinkButton } from '@/components/plaid';
 import { useSoundEffects } from '@/hooks/use-sound-effects';
+import { useRitual } from '@/hooks/use-ritual';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { friendlyError } from '@/lib/friendly-errors';
 import { toast } from 'sonner';
@@ -419,6 +426,16 @@ export default function Dashboard() {
 
   // Sound effects (disabled by default)
   const { play: playSound, enabled: soundEnabled, toggle: toggleSound } = useSoundEffects({ enabled: false });
+
+  // Daily ritual
+  const { needsRitual, streak, completeRitual, skipRitual } = useRitual();
+  const [showRitual, setShowRitual] = useState(false);
+
+  useEffect(() => {
+    if (needsRitual) {
+      setShowRitual(true);
+    }
+  }, [needsRitual]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -916,6 +933,22 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {/* Daily ritual overlay */}
+      {showRitual && (
+        <RitualOverlay
+          branches={treeBranches}
+          streak={streak}
+          onComplete={() => {
+            completeRitual();
+            setShowRitual(false);
+          }}
+          onSkip={() => {
+            skipRitual();
+            setShowRitual(false);
+          }}
+        />
+      )}
+
       {/* Loading overlay for allocations */}
       {isLoading && (
         <LoadingOverlay text="Allocating your income..." />
